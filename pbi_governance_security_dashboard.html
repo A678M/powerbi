@@ -1,0 +1,559 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans)}
+.dash{width:100%;padding:0 0 2rem}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:var(--color-background-primary);border-bottom:0.5px solid var(--color-border-tertiary);margin-bottom:0}
+.topbar-left{display:flex;align-items:center;gap:10px}
+.logo-badge{width:28px;height:28px;border-radius:6px;background:#185FA5;display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;font-weight:500}
+.topbar-title{font-size:14px;font-weight:500;color:var(--color-text-primary)}
+.topbar-sub{font-size:11px;color:var(--color-text-secondary)}
+.topbar-right{display:flex;align-items:center;gap:8px}
+.status-pill{font-size:11px;padding:3px 10px;border-radius:20px;font-weight:500}
+.sp-green{background:#EAF3DE;color:#3B6D11}
+.sp-amber{background:#FAEEDA;color:#854F0B}
+.sp-red{background:#FCEBEB;color:#A32D2D}
+.sp-blue{background:#E6F1FB;color:#185FA5}
+.nav{display:flex;gap:0;padding:0 16px;background:var(--color-background-primary);border-bottom:0.5px solid var(--color-border-tertiary)}
+.nav-tab{padding:10px 14px;font-size:12px;font-weight:500;color:var(--color-text-secondary);cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;transition:color 0.15s}
+.nav-tab:hover{color:var(--color-text-primary)}
+.nav-tab.active{color:#185FA5;border-bottom-color:#185FA5}
+.page{display:none;padding:16px}
+.page.active{display:block}
+.section-label{font-size:11px;font-weight:500;color:var(--color-text-secondary);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:10px;margin-top:20px}
+.section-label:first-child{margin-top:0}
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:16px}
+.kpi{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:12px 14px}
+.kpi-label{font-size:11px;color:var(--color-text-secondary);margin-bottom:6px}
+.kpi-value{font-size:22px;font-weight:500;color:var(--color-text-primary);line-height:1}
+.kpi-delta{font-size:11px;margin-top:4px}
+.kpi-delta.up{color:#3B6D11}
+.kpi-delta.down{color:#A32D2D}
+.kpi-delta.neu{color:var(--color-text-secondary)}
+.card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:14px 16px}
+.card-title{font-size:13px;font-weight:500;color:var(--color-text-primary);margin-bottom:12px;display:flex;align-items:center;gap:6px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.chart-wrap{position:relative;width:100%}
+.bar-row{display:flex;align-items:center;gap:8px;margin-bottom:7px;font-size:12px}
+.bar-label{width:100px;color:var(--color-text-secondary);flex-shrink:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bar-track{flex:1;height:8px;background:var(--color-background-secondary);border-radius:4px;overflow:hidden}
+.bar-fill{height:100%;border-radius:4px;transition:width 0.6s ease}
+.bar-val{width:32px;text-align:right;color:var(--color-text-primary);font-weight:500;flex-shrink:0}
+.gauge-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;padding-bottom:10px;border-bottom:0.5px solid var(--color-border-tertiary)}
+.gauge-row:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0}
+.gauge-name{font-size:12px;color:var(--color-text-primary)}
+.gauge-sub{font-size:11px;color:var(--color-text-secondary)}
+.gauge-badge{font-size:11px;padding:2px 8px;border-radius:4px;font-weight:500;flex-shrink:0}
+.gb-green{background:#EAF3DE;color:#3B6D11}
+.gb-amber{background:#FAEEDA;color:#854F0B}
+.gb-red{background:#FCEBEB;color:#A32D2D}
+.gb-blue{background:#E6F1FB;color:#185FA5}
+.gb-gray{background:var(--color-background-secondary);color:var(--color-text-secondary)}
+.progress-bar{height:6px;background:var(--color-background-secondary);border-radius:3px;overflow:hidden;margin-top:6px;width:100%}
+.progress-fill{height:100%;border-radius:3px}
+.score-ring-wrap{display:flex;align-items:center;justify-content:center;flex-direction:column;padding:8px 0}
+.risk-table{width:100%;font-size:12px;border-collapse:collapse}
+.risk-table th{text-align:left;font-size:11px;font-weight:500;color:var(--color-text-secondary);padding:0 8px 8px 0;border-bottom:0.5px solid var(--color-border-tertiary)}
+.risk-table td{padding:8px 8px 8px 0;border-bottom:0.5px solid var(--color-border-tertiary);color:var(--color-text-primary);vertical-align:middle}
+.risk-table tr:last-child td{border-bottom:none}
+.dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:4px;flex-shrink:0}
+.dot-green{background:#639922}
+.dot-amber{background:#BA7517}
+.dot-red{background:#E24B4A}
+.dot-blue{background:#378ADD}
+.spark{display:flex;align-items:flex-end;gap:2px;height:32px}
+.spark-bar{width:6px;border-radius:2px 2px 0 0;background:#B5D4F4;flex-shrink:0}
+.spark-bar.hi{background:#378ADD}
+.spark-bar.warn{background:#EF9F27}
+.spark-bar.danger{background:#E24B4A}
+.event-list{font-size:12px}
+.event-item{display:flex;align-items:flex-start;gap:8px;padding:8px 0;border-bottom:0.5px solid var(--color-border-tertiary)}
+.event-item:last-child{border-bottom:none}
+.event-icon{width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:14px}
+.ei-red{background:#FCEBEB;color:#A32D2D}
+.ei-amber{background:#FAEEDA;color:#854F0B}
+.ei-blue{background:#E6F1FB;color:#185FA5}
+.ei-green{background:#EAF3DE;color:#3B6D11}
+.event-body{flex:1}
+.event-title{font-weight:500;color:var(--color-text-primary)}
+.event-meta{color:var(--color-text-secondary);font-size:11px;margin-top:1px}
+.event-time{font-size:11px;color:var(--color-text-secondary);white-space:nowrap}
+.inline-score{display:flex;align-items:baseline;gap:4px}
+.score-big{font-size:32px;font-weight:500;color:var(--color-text-primary)}
+.score-max{font-size:14px;color:var(--color-text-secondary)}
+.health-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.health-item{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:10px 12px}
+.hi-label{font-size:11px;color:var(--color-text-secondary);margin-bottom:4px}
+.hi-val{font-size:18px;font-weight:500}
+.hi-bar{height:4px;border-radius:2px;background:var(--color-background-primary);margin-top:6px;overflow:hidden}
+.hi-fill{height:100%;border-radius:2px}
+.lineage-wrap{padding:8px 0}
+.lineage-node{display:flex;align-items:center;gap:6px;font-size:12px;padding:6px 10px;border-radius:6px;margin-bottom:6px;border:0.5px solid var(--color-border-tertiary)}
+.ln-src{background:#E6F1FB;border-color:#B5D4F4;color:#185FA5}
+.ln-ds{background:#EAF3DE;border-color:#C0DD97;color:#3B6D11}
+.ln-rpt{background:#EEEDFE;border-color:#CECBF6;color:#534AB7}
+.ln-usr{background:#FAEEDA;border-color:#FAC775;color:#854F0B}
+.lineage-arrow{width:100%;display:flex;align-items:center;justify-content:center;padding:0 0 4px 16px;color:var(--color-text-secondary)}
+.compliance-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.compliance-item{padding:10px 12px;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-tertiary)}
+.ci-pass{background:#EAF3DE;border-color:#C0DD97}
+.ci-warn{background:#FAEEDA;border-color:#FAC775}
+.ci-fail{background:#FCEBEB;border-color:#F7C1C1}
+.ci-label{font-size:11px;font-weight:500;margin-bottom:2px}
+.ci-val{font-size:14px;font-weight:500}
+</style>
+
+<h2 class="sr-only">Power BI Governance & Security Dashboard — Enterprise monitoring for workspaces, security, datasets, and compliance</h2>
+
+<div class="dash">
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="logo-badge"><i class="ti ti-layout-dashboard" aria-hidden="true"></i></div>
+      <div>
+        <div class="topbar-title">Power BI Governance & Security</div>
+        <div class="topbar-sub">Enterprise monitoring · Refreshed Jun 11, 2026 · 06:00 UTC</div>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <span class="status-pill sp-green"><i class="ti ti-circle-check" style="font-size:11px;vertical-align:-1px;margin-right:3px" aria-hidden="true"></i>Live</span>
+      <span class="status-pill sp-blue">v3.4.1</span>
+      <span class="status-pill sp-amber">12 alerts</span>
+    </div>
+  </div>
+
+  <div class="nav" id="nav">
+    <div class="nav-tab active" data-page="p1">Executive Overview</div>
+    <div class="nav-tab" data-page="p2">Security</div>
+    <div class="nav-tab" data-page="p3">Workspaces</div>
+    <div class="nav-tab" data-page="p4">Datasets</div>
+    <div class="nav-tab" data-page="p5">Audit & Compliance</div>
+  </div>
+
+  <!-- PAGE 1: EXECUTIVE OVERVIEW -->
+  <div class="page active" id="p1">
+    <div class="kpi-grid">
+      <div class="kpi"><div class="kpi-label">Total workspaces</div><div class="kpi-value">247</div><div class="kpi-delta up">↑ 8 this month</div></div>
+      <div class="kpi"><div class="kpi-label">Total reports</div><div class="kpi-value">1,842</div><div class="kpi-delta up">↑ 63 this month</div></div>
+      <div class="kpi"><div class="kpi-label">Total datasets</div><div class="kpi-value">538</div><div class="kpi-delta neu">→ stable</div></div>
+      <div class="kpi"><div class="kpi-label">Active users (30d)</div><div class="kpi-value">1,204</div><div class="kpi-delta up">↑ 4.2%</div></div>
+      <div class="kpi"><div class="kpi-label">Refresh success rate</div><div class="kpi-value">96.3%</div><div class="kpi-delta down">↓ 0.8%</div></div>
+      <div class="kpi"><div class="kpi-label">Security compliance</div><div class="kpi-value">88.5%</div><div class="kpi-delta up">↑ 1.2%</div></div>
+    </div>
+
+    <div class="grid3" style="margin-bottom:12px">
+      <div class="card">
+        <div class="card-title"><i class="ti ti-heartbeat" style="font-size:15px;color:#185FA5" aria-hidden="true"></i> Governance health index</div>
+        <div class="score-ring-wrap">
+          <svg width="100" height="100" viewBox="0 0 100 100" aria-hidden="true">
+            <circle cx="50" cy="50" r="40" fill="none" stroke="var(--color-background-secondary)" stroke-width="10"/>
+            <circle cx="50" cy="50" r="40" fill="none" stroke="#378ADD" stroke-width="10" stroke-dasharray="201.1" stroke-dashoffset="30" stroke-linecap="round" transform="rotate(-90 50 50)"/>
+            <text x="50" y="46" text-anchor="middle" font-size="18" font-weight="500" fill="var(--color-text-primary)">85</text>
+            <text x="50" y="60" text-anchor="middle" font-size="10" fill="var(--color-text-secondary)">/100</text>
+          </svg>
+        </div>
+        <div style="text-align:center;font-size:11px;color:var(--color-text-secondary)">Good · Target: 90+</div>
+      </div>
+      <div class="card">
+        <div class="card-title"><i class="ti ti-alert-triangle" style="font-size:15px;color:#BA7517" aria-hidden="true"></i> Workspace risk score</div>
+        <div class="score-ring-wrap">
+          <svg width="100" height="100" viewBox="0 0 100 100" aria-hidden="true">
+            <circle cx="50" cy="50" r="40" fill="none" stroke="var(--color-background-secondary)" stroke-width="10"/>
+            <circle cx="50" cy="50" r="40" fill="none" stroke="#EF9F27" stroke-width="10" stroke-dasharray="201.1" stroke-dashoffset="121" stroke-linecap="round" transform="rotate(-90 50 50)"/>
+            <text x="50" y="46" text-anchor="middle" font-size="18" font-weight="500" fill="var(--color-text-primary)">39</text>
+            <text x="50" y="60" text-anchor="middle" font-size="10" fill="var(--color-text-secondary)">/100</text>
+          </svg>
+        </div>
+        <div style="text-align:center;font-size:11px;color:var(--color-text-secondary)">Medium · Lower is better</div>
+      </div>
+      <div class="card">
+        <div class="card-title"><i class="ti ti-shield-check" style="font-size:15px;color:#3B6D11" aria-hidden="true"></i> Security score</div>
+        <div class="score-ring-wrap">
+          <svg width="100" height="100" viewBox="0 0 100 100" aria-hidden="true">
+            <circle cx="50" cy="50" r="40" fill="none" stroke="var(--color-background-secondary)" stroke-width="10"/>
+            <circle cx="50" cy="50" r="40" fill="none" stroke="#639922" stroke-width="10" stroke-dasharray="201.1" stroke-dashoffset="23" stroke-linecap="round" transform="rotate(-90 50 50)"/>
+            <text x="50" y="46" text-anchor="middle" font-size="18" font-weight="500" fill="var(--color-text-primary)">88</text>
+            <text x="50" y="60" text-anchor="middle" font-size="10" fill="var(--color-text-secondary)">/100</text>
+          </svg>
+        </div>
+        <div style="text-align:center;font-size:11px;color:var(--color-text-secondary)">Good · Target: 95+</div>
+      </div>
+    </div>
+
+    <div class="grid2">
+      <div class="card">
+        <div class="card-title"><i class="ti ti-trending-up" style="font-size:15px;color:#185FA5" aria-hidden="true"></i> Governance pillars status</div>
+        <div class="gauge-row">
+          <div><div class="gauge-name">RLS coverage</div><div class="progress-bar"><div class="progress-fill" style="width:78%;background:#378ADD"></div></div></div>
+          <span class="gauge-badge gb-amber" style="margin-left:10px;white-space:nowrap">78%</span>
+        </div>
+        <div class="gauge-row">
+          <div><div class="gauge-name">Dataset certification</div><div class="progress-bar"><div class="progress-fill" style="width:62%;background:#639922"></div></div></div>
+          <span class="gauge-badge gb-amber" style="margin-left:10px;white-space:nowrap">62%</span>
+        </div>
+        <div class="gauge-row">
+          <div><div class="gauge-name">Workspace ownership</div><div class="progress-bar"><div class="progress-fill" style="width:91%;background:#639922"></div></div></div>
+          <span class="gauge-badge gb-green" style="margin-left:10px;white-space:nowrap">91%</span>
+        </div>
+        <div class="gauge-row">
+          <div><div class="gauge-name">Refresh reliability</div><div class="progress-bar"><div class="progress-fill" style="width:96%;background:#639922"></div></div></div>
+          <span class="gauge-badge gb-green" style="margin-left:10px;white-space:nowrap">96%</span>
+        </div>
+        <div class="gauge-row">
+          <div><div class="gauge-name">Data retention compliance</div><div class="progress-bar"><div class="progress-fill" style="width:54%;background:#EF9F27"></div></div></div>
+          <span class="gauge-badge gb-amber" style="margin-left:10px;white-space:nowrap">54%</span>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title"><i class="ti ti-clock" style="font-size:15px;color:#185FA5" aria-hidden="true"></i> Recent governance events</div>
+        <div class="event-list">
+          <div class="event-item">
+            <div class="event-icon ei-red"><i class="ti ti-alert-circle" aria-hidden="true"></i></div>
+            <div class="event-body">
+              <div class="event-title">RLS missing — Finance Reports</div>
+              <div class="event-meta">Workspace: Finance-PROD · 3 reports affected</div>
+            </div>
+            <div class="event-time">2h ago</div>
+          </div>
+          <div class="event-item">
+            <div class="event-icon ei-amber"><i class="ti ti-refresh-alert" aria-hidden="true"></i></div>
+            <div class="event-body">
+              <div class="event-title">Dataset refresh failed</div>
+              <div class="event-meta">SalesMetrics_v2 · 4 consecutive failures</div>
+            </div>
+            <div class="event-time">4h ago</div>
+          </div>
+          <div class="event-item">
+            <div class="event-icon ei-blue"><i class="ti ti-user-plus" aria-hidden="true"></i></div>
+            <div class="event-body">
+              <div class="event-title">External share created</div>
+              <div class="event-meta">HR Dashboard shared to vendor@ext.com</div>
+            </div>
+            <div class="event-time">6h ago</div>
+          </div>
+          <div class="event-item">
+            <div class="event-icon ei-green"><i class="ti ti-certificate" aria-hidden="true"></i></div>
+            <div class="event-body">
+              <div class="event-title">Dataset certified</div>
+              <div class="event-meta">CustomerMaster 2026 · by Data Steward</div>
+            </div>
+            <div class="event-time">12h ago</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PAGE 2: SECURITY -->
+  <div class="page" id="p2">
+    <div class="kpi-grid">
+      <div class="kpi"><div class="kpi-label">RLS coverage</div><div class="kpi-value">78%</div><div class="kpi-delta down">↓ 2% this week</div></div>
+      <div class="kpi"><div class="kpi-label">Reports without RLS</div><div class="kpi-value">47</div><div class="kpi-delta down">↑ 5 new</div></div>
+      <div class="kpi"><div class="kpi-label">Failed logins (24h)</div><div class="kpi-value">214</div><div class="kpi-delta down">↑ 38%</div></div>
+      <div class="kpi"><div class="kpi-label">Access violations</div><div class="kpi-value">8</div><div class="kpi-delta down">↑ 3 today</div></div>
+      <div class="kpi"><div class="kpi-label">External shares active</div><div class="kpi-value">32</div><div class="kpi-delta neu">→ stable</div></div>
+      <div class="kpi"><div class="kpi-label">Sensitive dataset access</div><div class="kpi-value">156</div><div class="kpi-delta up">↑ 12 today</div></div>
+    </div>
+
+    <div class="grid2" style="margin-bottom:12px">
+      <div class="card">
+        <div class="card-title"><i class="ti ti-shield" style="font-size:15px;color:#185FA5" aria-hidden="true"></i> RLS coverage by workspace</div>
+        <div class="bar-row"><span class="bar-label">Finance-PROD</span><div class="bar-track"><div class="bar-fill" style="width:45%;background:#E24B4A"></div></div><span class="bar-val">45%</span></div>
+        <div class="bar-row"><span class="bar-label">HR-Analytics</span><div class="bar-track"><div class="bar-fill" style="width:68%;background:#EF9F27"></div></div><span class="bar-val">68%</span></div>
+        <div class="bar-row"><span class="bar-label">Sales-Dashboard</span><div class="bar-track"><div class="bar-fill" style="width:89%;background:#639922"></div></div><span class="bar-val">89%</span></div>
+        <div class="bar-row"><span class="bar-label">Operations-BI</span><div class="bar-track"><div class="bar-fill" style="width:94%;background:#639922"></div></div><span class="bar-val">94%</span></div>
+        <div class="bar-row"><span class="bar-label">Marketing</span><div class="bar-track"><div class="bar-fill" style="width:72%;background:#EF9F27"></div></div><span class="bar-val">72%</span></div>
+        <div class="bar-row"><span class="bar-label">Executive</span><div class="bar-track"><div class="bar-fill" style="width:100%;background:#639922"></div></div><span class="bar-val">100%</span></div>
+      </div>
+      <div class="card">
+        <div class="card-title"><i class="ti ti-users" style="font-size:15px;color:#185FA5" aria-hidden="true"></i> User permission distribution</div>
+        <div style="margin-bottom:8px">
+          <div class="bar-row"><span class="bar-label">Viewer</span><div class="bar-track"><div class="bar-fill" style="width:71%;background:#378ADD"></div></div><span class="bar-val">856</span></div>
+          <div class="bar-row"><span class="bar-label">Contributor</span><div class="bar-track"><div class="bar-fill" style="width:18%;background:#7F77DD"></div></div><span class="bar-val">217</span></div>
+          <div class="bar-row"><span class="bar-label">Member</span><div class="bar-track"><div class="bar-fill" style="width:8%;background:#EF9F27"></div></div><span class="bar-val">92</span></div>
+          <div class="bar-row"><span class="bar-label">Admin</span><div class="bar-track"><div class="bar-fill" style="width:3%;background:#E24B4A"></div></div><span class="bar-val">39</span></div>
+        </div>
+        <div style="border-top:0.5px solid var(--color-border-tertiary);padding-top:10px">
+          <div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:6px">Admin accounts review status</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <span class="gauge-badge gb-green">28 reviewed</span>
+            <span class="gauge-badge gb-amber">8 pending</span>
+            <span class="gauge-badge gb-red">3 overdue</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid2">
+      <div class="card">
+        <div class="card-title"><i class="ti ti-lock-open" style="font-size:15px;color:#A32D2D" aria-hidden="true"></i> Security incidents log</div>
+        <div class="event-list">
+          <div class="event-item">
+            <div class="event-icon ei-red"><i class="ti ti-key" aria-hidden="true"></i></div>
+            <div class="event-body">
+              <div class="event-title">Brute force attempt — 214 failed logins</div>
+              <div class="event-meta">Source IP: 203.0.113.45 · Account: john.doe@corp.com</div>
+            </div>
+            <div class="event-time">1h ago</div>
+          </div>
+          <div class="event-item">
+            <div class="event-icon ei-red"><i class="ti ti-eye" aria-hidden="true"></i></div>
+            <div class="event-body">
+              <div class="event-title">Unauthorized dataset access</div>
+              <div class="event-meta">PayrollData_2026 · User: contractor@partner.com</div>
+            </div>
+            <div class="event-time">3h ago</div>
+          </div>
+          <div class="event-item">
+            <div class="event-icon ei-amber"><i class="ti ti-share" aria-hidden="true"></i></div>
+            <div class="event-body">
+              <div class="event-title">External share — unclassified data</div>
+              <div class="event-meta">BudgetForecast_Q3 shared to 4 external recipients</div>
+            </div>
+            <div class="event-time">5h ago</div>
+          </div>
+          <div class="event-item">
+            <div class="event-icon ei-amber"><i class="ti ti-database" aria-hidden="true"></i></div>
+            <div class="event-body">
+              <div class="event-title">Sensitive label bypassed</div>
+              <div class="event-meta">CustomerPII dataset · export without DLP check</div>
+            </div>
+            <div class="event-time">8h ago</div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title"><i class="ti ti-world" style="font-size:15px;color:#185FA5" aria-hidden="true"></i> External sharing analysis</div>
+        <table class="risk-table">
+          <tr><th>Report / Dataset</th><th>Recipient</th><th>Risk</th></tr>
+          <tr><td>BudgetForecast_Q3</td><td>vendor@acme.io</td><td><span class="gauge-badge gb-red">High</span></td></tr>
+          <tr><td>HR Headcount</td><td>consultant@firm.com</td><td><span class="gauge-badge gb-amber">Med</span></td></tr>
+          <tr><td>Sales Pipeline</td><td>partner@dist.com</td><td><span class="gauge-badge gb-amber">Med</span></td></tr>
+          <tr><td>Product Roadmap</td><td>agency@mkt.com</td><td><span class="gauge-badge gb-amber">Med</span></td></tr>
+          <tr><td>Ops Dashboard</td><td>supplier@log.com</td><td><span class="gauge-badge gb-green">Low</span></td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- PAGE 3: WORKSPACES -->
+  <div class="page" id="p3">
+    <div class="kpi-grid">
+      <div class="kpi"><div class="kpi-label">Total workspaces</div><div class="kpi-value">247</div><div class="kpi-delta up">↑ 8 new</div></div>
+      <div class="kpi"><div class="kpi-label">Orphaned workspaces</div><div class="kpi-value">14</div><div class="kpi-delta down">↑ 2 new</div></div>
+      <div class="kpi"><div class="kpi-label">Inactive (90d)</div><div class="kpi-value">31</div><div class="kpi-delta down">High risk</div></div>
+      <div class="kpi"><div class="kpi-label">Certified content %</div><div class="kpi-value">62%</div><div class="kpi-delta up">↑ 4%</div></div>
+      <div class="kpi"><div class="kpi-label">Owned workspaces</div><div class="kpi-value">91%</div><div class="kpi-delta up">↑ 1.5%</div></div>
+    </div>
+
+    <div class="grid2" style="margin-bottom:12px">
+      <div class="card">
+        <div class="card-title"><i class="ti ti-layout-grid" style="font-size:15px;color:#185FA5" aria-hidden="true"></i> Workspace risk ranking</div>
+        <table class="risk-table">
+          <tr><th>Workspace</th><th>Issues</th><th>Risk</th><th>Activity</th></tr>
+          <tr><td>Finance-PROD</td><td>RLS, Orphan</td><td><span class="gauge-badge gb-red">High</span></td><td><span class="spark"><span class="spark-bar" style="height:20px"></span><span class="spark-bar hi" style="height:28px"></span><span class="spark-bar danger" style="height:10px"></span></span></td></tr>
+          <tr><td>Legacy-Migrate</td><td>No owner</td><td><span class="gauge-badge gb-red">High</span></td><td><span class="spark"><span class="spark-bar" style="height:5px"></span><span class="spark-bar" style="height:4px"></span><span class="spark-bar" style="height:3px"></span></span></td></tr>
+          <tr><td>HR-Analytics</td><td>RLS partial</td><td><span class="gauge-badge gb-amber">Med</span></td><td><span class="spark"><span class="spark-bar hi" style="height:24px"></span><span class="spark-bar hi" style="height:26px"></span><span class="spark-bar hi" style="height:22px"></span></span></td></tr>
+          <tr><td>Marketing-Q2</td><td>Inactive</td><td><span class="gauge-badge gb-amber">Med</span></td><td><span class="spark"><span class="spark-bar" style="height:12px"></span><span class="spark-bar" style="height:8px"></span><span class="spark-bar" style="height:4px"></span></span></td></tr>
+          <tr><td>Sales-Dashboard</td><td>None</td><td><span class="gauge-badge gb-green">Low</span></td><td><span class="spark"><span class="spark-bar hi" style="height:30px"></span><span class="spark-bar hi" style="height:28px"></span><span class="spark-bar hi" style="height:32px"></span></span></td></tr>
+        </table>
+      </div>
+      <div class="card">
+        <div class="card-title"><i class="ti ti-certificate" style="font-size:15px;color:#3B6D11" aria-hidden="true"></i> Certified vs non-certified content</div>
+        <div style="margin-bottom:12px">
+          <div class="bar-row"><span class="bar-label">Certified</span><div class="bar-track"><div class="bar-fill" style="width:62%;background:#639922"></div></div><span class="bar-val">333</span></div>
+          <div class="bar-row"><span class="bar-label">Promoted</span><div class="bar-track"><div class="bar-fill" style="width:19%;background:#378ADD"></div></div><span class="bar-val">103</span></div>
+          <div class="bar-row"><span class="bar-label">No endorsement</span><div class="bar-track"><div class="bar-fill" style="width:36%;background:#E24B4A"></div></div><span class="bar-val">194</span></div>
+        </div>
+        <div style="border-top:0.5px solid var(--color-border-tertiary);padding-top:10px;font-size:12px;color:var(--color-text-secondary)">
+          Non-endorsed content carries higher governance risk. Target: 80% certified.
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><i class="ti ti-timeline" style="font-size:15px;color:#185FA5" aria-hidden="true"></i> Workspace activity trend (last 6 months)</div>
+      <div class="chart-wrap" style="height:180px">
+        <canvas id="wsChart" role="img" aria-label="Bar chart showing workspace activity trend over 6 months">Monthly active workspaces: Jan 198, Feb 204, Mar 211, Apr 219, May 228, Jun 241.</canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- PAGE 4: DATASETS -->
+  <div class="page" id="p4">
+    <div class="kpi-grid">
+      <div class="kpi"><div class="kpi-label">Total datasets</div><div class="kpi-value">538</div><div class="kpi-delta up">↑ 12 new</div></div>
+      <div class="kpi"><div class="kpi-label">Refresh failures (24h)</div><div class="kpi-value">21</div><div class="kpi-delta down">↑ 8 new</div></div>
+      <div class="kpi"><div class="kpi-label">Avg dataset size</div><div class="kpi-value">1.4 GB</div><div class="kpi-delta up">↑ 0.2 GB</div></div>
+      <div class="kpi"><div class="kpi-label">High usage datasets</div><div class="kpi-value">68</div><div class="kpi-delta up">↑ 5 this week</div></div>
+      <div class="kpi"><div class="kpi-label">Stale datasets (30d)</div><div class="kpi-value">43</div><div class="kpi-delta down">Needs cleanup</div></div>
+    </div>
+
+    <div class="grid2" style="margin-bottom:12px">
+      <div class="card">
+        <div class="card-title"><i class="ti ti-refresh" style="font-size:15px;color:#185FA5" aria-hidden="true"></i> Dataset refresh status</div>
+        <div class="gauge-row"><div style="flex:1"><div class="gauge-name">CustomerMaster 2026</div><div class="gauge-sub">Last: 06:02 · Next: 12:00</div></div><span class="gauge-badge gb-green">Success</span></div>
+        <div class="gauge-row"><div style="flex:1"><div class="gauge-name">SalesMetrics_v2</div><div class="gauge-sub">4 consecutive failures</div></div><span class="gauge-badge gb-red">Failed</span></div>
+        <div class="gauge-row"><div style="flex:1"><div class="gauge-name">FinanceLedger_Q2</div><div class="gauge-sub">Last: 05:45 · Next: 11:45</div></div><span class="gauge-badge gb-green">Success</span></div>
+        <div class="gauge-row"><div style="flex:1"><div class="gauge-name">HRHeadcount_Live</div><div class="gauge-sub">Running since 05:58</div></div><span class="gauge-badge gb-blue">Running</span></div>
+        <div class="gauge-row"><div style="flex:1"><div class="gauge-name">OpsSupplyChain</div><div class="gauge-sub">Gateway timeout</div></div><span class="gauge-badge gb-red">Failed</span></div>
+        <div class="gauge-row"><div style="flex:1"><div class="gauge-name">MarketingROI</div><div class="gauge-sub">Last: 04:30 · overdue</div></div><span class="gauge-badge gb-amber">Warning</span></div>
+      </div>
+      <div class="card">
+        <div class="card-title"><i class="ti ti-database" style="font-size:15px;color:#185FA5" aria-hidden="true"></i> Data source inventory</div>
+        <div class="bar-row"><span class="bar-label">SQL Server</span><div class="bar-track"><div class="bar-fill" style="width:62%;background:#185FA5"></div></div><span class="bar-val">62%</span></div>
+        <div class="bar-row"><span class="bar-label">Azure Synapse</span><div class="bar-track"><div class="bar-fill" style="width:18%;background:#378ADD"></div></div><span class="bar-val">18%</span></div>
+        <div class="bar-row"><span class="bar-label">SharePoint</span><div class="bar-track"><div class="bar-fill" style="width:9%;background:#7F77DD"></div></div><span class="bar-val">9%</span></div>
+        <div class="bar-row"><span class="bar-label">Excel / CSV</span><div class="bar-track"><div class="bar-fill" style="width:7%;background:#EF9F27"></div></div><span class="bar-val">7%</span></div>
+        <div class="bar-row"><span class="bar-label">REST API</span><div class="bar-track"><div class="bar-fill" style="width:4%;background:#639922"></div></div><span class="bar-val">4%</span></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><i class="ti ti-git-merge" style="font-size:15px;color:#534AB7" aria-hidden="true"></i> Data lineage visualization</div>
+      <div class="lineage-wrap">
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;align-items:start">
+          <div>
+            <div style="font-size:11px;font-weight:500;color:var(--color-text-secondary);margin-bottom:6px">Sources</div>
+            <div class="lineage-node ln-src"><i class="ti ti-database" style="font-size:13px" aria-hidden="true"></i>SQL Server ERP</div>
+            <div class="lineage-node ln-src"><i class="ti ti-cloud" style="font-size:13px" aria-hidden="true"></i>Azure Synapse</div>
+            <div class="lineage-node ln-src"><i class="ti ti-file-spreadsheet" style="font-size:13px" aria-hidden="true"></i>SharePoint</div>
+          </div>
+          <div>
+            <div style="font-size:11px;font-weight:500;color:var(--color-text-secondary);margin-bottom:6px">Dataflows</div>
+            <div class="lineage-node ln-ds"><i class="ti ti-filter" style="font-size:13px" aria-hidden="true"></i>CustomerMaster</div>
+            <div class="lineage-node ln-ds"><i class="ti ti-filter" style="font-size:13px" aria-hidden="true"></i>SalesMetrics</div>
+            <div class="lineage-node ln-ds"><i class="ti ti-filter" style="font-size:13px" aria-hidden="true"></i>FinanceLedger</div>
+          </div>
+          <div>
+            <div style="font-size:11px;font-weight:500;color:var(--color-text-secondary);margin-bottom:6px">Datasets</div>
+            <div class="lineage-node ln-rpt"><i class="ti ti-table" style="font-size:13px" aria-hidden="true"></i>CustSegmentation</div>
+            <div class="lineage-node ln-rpt"><i class="ti ti-table" style="font-size:13px" aria-hidden="true"></i>RevenuePipeline</div>
+            <div class="lineage-node ln-rpt"><i class="ti ti-table" style="font-size:13px" aria-hidden="true"></i>BudgetModel</div>
+          </div>
+          <div>
+            <div style="font-size:11px;font-weight:500;color:var(--color-text-secondary);margin-bottom:6px">Reports</div>
+            <div class="lineage-node ln-usr"><i class="ti ti-report" style="font-size:13px" aria-hidden="true"></i>Exec Dashboard</div>
+            <div class="lineage-node ln-usr"><i class="ti ti-report" style="font-size:13px" aria-hidden="true"></i>Sales Pipeline</div>
+            <div class="lineage-node ln-usr"><i class="ti ti-report" style="font-size:13px" aria-hidden="true"></i>Budget Review</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PAGE 5: AUDIT & COMPLIANCE -->
+  <div class="page" id="p5">
+    <div class="kpi-grid">
+      <div class="kpi"><div class="kpi-label">Overall compliance</div><div class="kpi-value">88.5%</div><div class="kpi-delta up">↑ 1.2%</div></div>
+      <div class="kpi"><div class="kpi-label">GDPR status</div><div class="kpi-value">Partial</div><div class="kpi-delta down">3 gaps</div></div>
+      <div class="kpi"><div class="kpi-label">Audit events (24h)</div><div class="kpi-value">8,421</div><div class="kpi-delta up">↑ 12%</div></div>
+      <div class="kpi"><div class="kpi-label">Active policy alerts</div><div class="kpi-value">12</div><div class="kpi-delta down">↑ 4 new</div></div>
+      <div class="kpi"><div class="kpi-label">Retention violations</div><div class="kpi-value">7</div><div class="kpi-delta down">↑ 2 new</div></div>
+    </div>
+
+    <div class="grid2" style="margin-bottom:12px">
+      <div class="card">
+        <div class="card-title"><i class="ti ti-checklist" style="font-size:15px;color:#185FA5" aria-hidden="true"></i> Compliance scorecard</div>
+        <div class="compliance-grid">
+          <div class="compliance-item ci-pass"><div class="ci-label" style="color:#3B6D11">Data classification</div><div class="ci-val" style="color:#3B6D11">✓ Pass</div></div>
+          <div class="compliance-item ci-warn"><div class="ci-label" style="color:#854F0B">GDPR consent logging</div><div class="ci-val" style="color:#854F0B">⚠ Partial</div></div>
+          <div class="compliance-item ci-pass"><div class="ci-label" style="color:#3B6D11">Access control reviews</div><div class="ci-val" style="color:#3B6D11">✓ Pass</div></div>
+          <div class="compliance-item ci-warn"><div class="ci-label" style="color:#854F0B">Data retention policy</div><div class="ci-val" style="color:#854F0B">⚠ Partial</div></div>
+          <div class="compliance-item ci-pass"><div class="ci-label" style="color:#3B6D11">MFA enforcement</div><div class="ci-val" style="color:#3B6D11">✓ Pass</div></div>
+          <div class="compliance-item ci-fail"><div class="ci-label" style="color:#A32D2D">Data subject rights</div><div class="ci-val" style="color:#A32D2D">✗ Fail</div></div>
+          <div class="compliance-item ci-pass"><div class="ci-label" style="color:#3B6D11">Audit log enabled</div><div class="ci-val" style="color:#3B6D11">✓ Pass</div></div>
+          <div class="compliance-item ci-warn"><div class="ci-label" style="color:#854F0B">External share review</div><div class="ci-val" style="color:#854F0B">⚠ Partial</div></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title"><i class="ti ti-activity" style="font-size:15px;color:#185FA5" aria-hidden="true"></i> Top user activity (last 7 days)</div>
+        <div class="bar-row"><span class="bar-label">Report views</span><div class="bar-track"><div class="bar-fill" style="width:100%;background:#378ADD"></div></div><span class="bar-val">42.1k</span></div>
+        <div class="bar-row"><span class="bar-label">Dataset queries</span><div class="bar-track"><div class="bar-fill" style="width:74%;background:#7F77DD"></div></div><span class="bar-val">31.2k</span></div>
+        <div class="bar-row"><span class="bar-label">Report exports</span><div class="bar-track"><div class="bar-fill" style="width:21%;background:#EF9F27"></div></div><span class="bar-val">8.9k</span></div>
+        <div class="bar-row"><span class="bar-label">Share events</span><div class="bar-track"><div class="bar-fill" style="width:8%;background:#E24B4A"></div></div><span class="bar-val">3.4k</span></div>
+        <div class="bar-row"><span class="bar-label">Admin changes</span><div class="bar-track"><div class="bar-fill" style="width:2%;background:#D85A30"></div></div><span class="bar-val">0.7k</span></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><i class="ti ti-chart-bar" style="font-size:15px;color:#185FA5" aria-hidden="true"></i> Audit event trend (last 14 days)</div>
+      <div class="chart-wrap" style="height:160px">
+        <canvas id="auditChart" role="img" aria-label="Line chart showing audit event volume over last 14 days">Daily audit events ranging from 5,200 to 9,800 with a spike on day 9.</canvas>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+document.getElementById('nav').addEventListener('click', function(e) {
+  const tab = e.target.closest('.nav-tab');
+  if (!tab) return;
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  tab.classList.add('active');
+  document.getElementById(tab.dataset.page).classList.add('active');
+  if (tab.dataset.page === 'p3' && !window.wsChartDone) renderWsChart();
+  if (tab.dataset.page === 'p5' && !window.auditChartDone) renderAuditChart();
+});
+
+function renderWsChart() {
+  window.wsChartDone = true;
+  const isDark = matchMedia('(prefers-color-scheme: dark)').matches;
+  const gridC = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)';
+  const txtC = isDark ? '#888' : '#888';
+  new Chart(document.getElementById('wsChart'), {
+    type: 'bar',
+    data: {
+      labels: ['Jan','Feb','Mar','Apr','May','Jun'],
+      datasets: [{
+        label: 'Active workspaces',
+        data: [198,204,211,219,228,241],
+        backgroundColor: '#378ADD',
+        borderRadius: 4
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { grid: { color: gridC }, ticks: { color: txtC, font: { size: 11 } } },
+        y: { grid: { color: gridC }, ticks: { color: txtC, font: { size: 11 } }, min: 180 }
+      }
+    }
+  });
+}
+
+function renderAuditChart() {
+  window.auditChartDone = true;
+  const isDark = matchMedia('(prefers-color-scheme: dark)').matches;
+  const gridC = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)';
+  const txtC = isDark ? '#888' : '#888';
+  const labels = Array.from({length:14}, (_,i) => 'May '+(29+i > 31 ? 'Jun '+(29+i-31) : (29+i)));
+  new Chart(document.getElementById('auditChart'), {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [{
+        label: 'Audit events',
+        data: [6200,5800,6400,7100,6900,7300,8100,7600,9800,7200,6800,7400,7900,8421],
+        borderColor: '#378ADD',
+        backgroundColor: 'rgba(55,138,221,0.08)',
+        fill: true,
+        tension: 0.4,
+        pointRadius: 3,
+        pointBackgroundColor: '#378ADD'
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { grid: { color: gridC }, ticks: { color: txtC, font: { size: 10 }, maxRotation: 45, autoSkip: false } },
+        y: { grid: { color: gridC }, ticks: { color: txtC, font: { size: 11 } } }
+      }
+    }
+  });
+}
+</script>
