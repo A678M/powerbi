@@ -1,0 +1,965 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Social Media Engagement Dashboard</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ── TOKENS ─────────────────────────────────── */
+:root[data-theme="dark"]{
+  --bg:       #080b14;
+  --surface:  #0d1120;
+  --card:     rgba(15,20,38,0.85);
+  --card-h:   rgba(20,27,50,0.95);
+  --border:   rgba(255,255,255,0.07);
+  --border-h: rgba(255,255,255,0.18);
+  --txt1:     #f0f2ff;
+  --txt2:     #7b8ab8;
+  --txt3:     #3a4466;
+  --shadow:   0 4px 28px rgba(0,0,0,.45);
+  --shadow-lg:0 8px 48px rgba(0,0,0,.65);
+  --trow:     rgba(255,255,255,0.025);
+  --inp:      rgba(8,11,20,.8);
+  --scroll:   rgba(255,255,255,0.1);
+}
+:root[data-theme="light"]{
+  --bg:       #f2f4fb;
+  --surface:  #e6eaf5;
+  --card:     rgba(255,255,255,0.92);
+  --card-h:   rgba(255,255,255,1);
+  --border:   rgba(0,0,0,0.07);
+  --border-h: rgba(0,0,0,0.18);
+  --txt1:     #0d1120;
+  --txt2:     #4a5578;
+  --txt3:     #9aa3c2;
+  --shadow:   0 4px 20px rgba(80,100,180,.1);
+  --shadow-lg:0 8px 36px rgba(80,100,180,.18);
+  --trow:     rgba(0,0,0,0.025);
+  --inp:      rgba(242,244,251,.9);
+  --scroll:   rgba(0,0,0,0.12);
+}
+
+/* Platform palette */
+--ig-a:#f9317e; --ig-b:#ff8c42;
+--fb:   #1877f2;
+--tw:   #1d9bf0;
+--li:   #0a66c2;
+--yt:   #ff0000;
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  font-family:'Plus Jakarta Sans',sans-serif;
+  background:var(--bg);color:var(--txt1);
+  min-height:100vh;overflow-x:hidden;
+  transition:background .3s,color .3s;
+}
+body::before{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:
+    radial-gradient(ellipse 70% 40% at 15% 0%,rgba(249,49,126,.06) 0%,transparent 55%),
+    radial-gradient(ellipse 60% 35% at 85% 100%,rgba(29,155,240,.07) 0%,transparent 55%);
+}
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--scroll);border-radius:3px}
+
+/* ── LOADER ─────────────────────────────────── */
+#loader{
+  position:fixed;inset:0;z-index:9999;
+  background:var(--bg);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;
+  transition:opacity .5s;
+}
+#loader.out{opacity:0;pointer-events:none}
+.loader-bar{
+  width:180px;height:3px;border-radius:2px;background:var(--border);overflow:hidden;
+}
+.loader-fill{
+  height:100%;width:0%;border-radius:2px;
+  background:linear-gradient(90deg,#f9317e,#1d9bf0);
+  animation:fill .9s ease forwards;
+}
+@keyframes fill{to{width:100%}}
+.loader-label{font-size:13px;color:var(--txt2);font-weight:500;letter-spacing:.04em}
+
+/* ── LAYOUT ─────────────────────────────────── */
+.wrap{position:relative;z-index:1;max-width:1640px;margin:0 auto;padding:0 22px 48px}
+
+/* ── HEADER ─────────────────────────────────── */
+header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:20px 0 18px;gap:14px;flex-wrap:wrap;
+}
+.hd-left{display:flex;align-items:center;gap:12px}
+.logo{
+  display:flex;align-items:center;gap:3px;
+  font-size:22px;line-height:1;
+}
+.logo span{display:inline-block;width:10px;height:10px;border-radius:50%;margin-bottom:2px}
+.logo-ig{background:linear-gradient(135deg,#f9317e,#ff8c42)}
+.logo-fb{background:#1877f2}
+.logo-tw{background:#1d9bf0}
+.logo-li{background:#0a66c2}
+.logo-yt{background:#ff0000}
+.hd-text h1{font-size:18px;font-weight:800;color:var(--txt1);letter-spacing:-.02em}
+.hd-text p{font-size:11px;color:var(--txt3);margin-top:1px;font-family:'DM Mono',monospace}
+.hd-right{display:flex;align-items:center;gap:8px}
+.btn-icon{
+  width:36px;height:36px;border-radius:9px;
+  border:1px solid var(--border);background:var(--card);
+  color:var(--txt2);cursor:pointer;font-size:15px;
+  display:flex;align-items:center;justify-content:center;
+  backdrop-filter:blur(10px);transition:all .2s;
+}
+.btn-icon:hover{border-color:var(--border-h);color:var(--txt1);background:var(--card-h)}
+
+/* ── PLATFORM TABS ─────────────────────────── */
+.platform-tabs{
+  display:flex;align-items:center;gap:6px;
+  padding:10px 14px;margin-bottom:18px;
+  background:var(--card);border:1px solid var(--border);
+  border-radius:14px;backdrop-filter:blur(12px);
+  flex-wrap:wrap;
+}
+.ptab{
+  display:flex;align-items:center;gap:7px;
+  padding:7px 14px;border-radius:8px;border:1px solid transparent;
+  cursor:pointer;font-size:12px;font-weight:600;
+  color:var(--txt2);transition:all .2s;background:transparent;
+  font-family:'Plus Jakarta Sans',sans-serif;
+}
+.ptab .dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.ptab.active,.ptab:hover{color:var(--txt1);background:var(--trow);border-color:var(--border-h)}
+.ptab.active{border-color:var(--pt-color,var(--border-h))}
+.ptab-all .dot{background:linear-gradient(135deg,#f9317e,#1d9bf0)}
+.ptab-ig .dot{background:linear-gradient(135deg,#f9317e,#ff8c42)}
+.ptab-fb .dot{background:#1877f2}
+.ptab-tw .dot{background:#1d9bf0}
+.ptab-li .dot{background:#0a66c2}
+.ptab-yt .dot{background:#ff0000}
+
+/* ── DATE FILTER BAR ────────────────────────── */
+.filter-bar{
+  display:flex;align-items:center;gap:10px;
+  padding:10px 14px;margin-bottom:18px;
+  background:var(--card);border:1px solid var(--border);
+  border-radius:14px;backdrop-filter:blur(12px);flex-wrap:wrap;
+}
+.filter-bar label{font-size:11px;font-weight:700;color:var(--txt3);letter-spacing:.06em;white-space:nowrap}
+.date-input{
+  background:var(--inp);border:1px solid var(--border);border-radius:7px;
+  color:var(--txt1);font-family:'Plus Jakarta Sans',sans-serif;
+  font-size:12px;padding:6px 10px;transition:border-color .2s;
+  color-scheme:dark;
+}
+.date-input:focus{outline:none;border-color:var(--border-h)}
+.filter-sep{width:1px;height:22px;background:var(--border)}
+.btn-apply{
+  padding:6px 16px;border-radius:7px;
+  background:linear-gradient(135deg,#f9317e,#ff6640);
+  border:none;color:#fff;font-size:12px;font-weight:700;
+  cursor:pointer;transition:opacity .2s;font-family:'Plus Jakarta Sans',sans-serif;
+}
+.btn-apply:hover{opacity:.85}
+.btn-clear{
+  padding:6px 12px;border-radius:7px;border:1px solid var(--border);
+  background:transparent;color:var(--txt2);font-size:12px;
+  cursor:pointer;transition:all .2s;font-family:'Plus Jakarta Sans',sans-serif;
+}
+.btn-clear:hover{border-color:var(--border-h);color:var(--txt1)}
+.quick-btns{display:flex;gap:5px;flex-wrap:wrap}
+.qbtn{
+  padding:5px 10px;border-radius:6px;border:1px solid var(--border);
+  background:transparent;color:var(--txt2);font-size:11px;font-weight:600;
+  cursor:pointer;transition:all .15s;font-family:'Plus Jakarta Sans',sans-serif;
+}
+.qbtn:hover,.qbtn.active{border-color:var(--border-h);color:var(--txt1);background:var(--trow)}
+
+/* ── KPI CARDS ──────────────────────────────── */
+.kpi-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:13px;margin-bottom:18px}
+.kpi{
+  background:var(--card);border:1px solid var(--border);border-radius:14px;
+  padding:16px;backdrop-filter:blur(12px);transition:all .22s;
+  position:relative;overflow:hidden;cursor:default;
+}
+.kpi::after{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,var(--kc1,transparent),var(--kc2,transparent));
+  opacity:0;transition:opacity .22s;pointer-events:none;
+}
+.kpi:hover{transform:translateY(-3px);box-shadow:var(--shadow);border-color:var(--border-h)}
+.kpi:hover::after{opacity:.04}
+.kpi-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.kpi-tag{
+  font-size:10px;font-weight:700;letter-spacing:.07em;color:var(--txt3);text-transform:uppercase
+}
+.kpi-ico{
+  width:28px;height:28px;border-radius:7px;
+  display:flex;align-items:center;justify-content:center;font-size:13px;
+}
+.kpi-val{font-size:21px;font-weight:800;line-height:1;margin-bottom:5px}
+.kpi-sub{display:flex;align-items:center;gap:4px;font-size:10px;font-weight:600}
+.kpi-sub.up{color:#10b981}.kpi-sub.down{color:#f43f5e}.kpi-sub.flat{color:var(--txt3)}
+.kpi-bar{height:2px;border-radius:1px;margin-top:10px;background:var(--border);overflow:hidden}
+.kpi-bar-fill{height:100%;border-radius:1px;transition:width .8s ease}
+
+/* ── CHARTS ─────────────────────────────────── */
+.charts-r1{display:grid;grid-template-columns:2fr 1fr;gap:14px;margin-bottom:14px}
+.charts-r2{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:14px;margin-bottom:18px}
+.ccard{
+  background:var(--card);border:1px solid var(--border);border-radius:14px;
+  padding:18px;backdrop-filter:blur(12px);transition:border-color .2s,box-shadow .2s;
+  display:flex;flex-direction:column;gap:12px;
+}
+.ccard:hover{border-color:var(--border-h);box-shadow:var(--shadow)}
+.ccard-hd{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+.ccard-title{font-size:13px;font-weight:700;color:var(--txt1)}
+.ccard-sub{font-size:10px;color:var(--txt3);margin-top:2px}
+.c-badge{
+  font-size:9px;font-weight:700;letter-spacing:.05em;
+  padding:3px 7px;border-radius:20px;white-space:nowrap;
+  background:var(--trow);color:var(--txt2);border:1px solid var(--border);
+}
+.cwrap{flex:1;position:relative;min-height:190px}
+.cwrap canvas{position:absolute;inset:0;width:100%!important;height:100%!important}
+
+/* ── TABLE ─────────────────────────────────── */
+.tsec{
+  background:var(--card);border:1px solid var(--border);border-radius:14px;
+  padding:18px;backdrop-filter:blur(12px);
+}
+.ttool{
+  display:flex;align-items:center;justify-content:space-between;
+  gap:12px;flex-wrap:wrap;margin-bottom:14px;
+}
+.ttitle{font-size:14px;font-weight:700}
+.tcontrols{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.srch-wrap{position:relative}
+.srch-wrap input{
+  background:var(--inp);border:1px solid var(--border);border-radius:8px;
+  color:var(--txt1);font-family:'Plus Jakarta Sans',sans-serif;
+  font-size:12px;padding:7px 10px 7px 30px;width:200px;
+  transition:border-color .2s;
+}
+.srch-wrap input::placeholder{color:var(--txt3)}
+.srch-wrap input:focus{outline:none;border-color:var(--border-h)}
+.srch-ico{position:absolute;left:9px;top:50%;transform:translateY(-50%);font-size:12px;color:var(--txt3)}
+.sel-ps{
+  background:var(--inp);border:1px solid var(--border);border-radius:8px;
+  color:var(--txt1);font-size:11px;padding:6px 22px 6px 8px;
+  appearance:none;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%237b8ab8' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 6px center;
+}
+.btn-exp{
+  padding:7px 14px;border-radius:8px;border:1px solid var(--border);
+  background:var(--inp);color:var(--txt2);font-size:12px;font-weight:600;
+  cursor:pointer;display:flex;align-items:center;gap:5px;
+  transition:all .2s;font-family:'Plus Jakarta Sans',sans-serif;
+}
+.btn-exp:hover{border-color:#10b981;color:#10b981}
+.twrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:12px}
+thead th{
+  padding:9px 11px;text-align:left;
+  font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--txt3);border-bottom:1px solid var(--border);
+  cursor:pointer;user-select:none;white-space:nowrap;
+}
+thead th:hover{color:var(--txt1)}
+thead th .si{margin-left:3px;opacity:.4;font-size:8px}
+thead th.asc .si::after{content:'▲';opacity:1}
+thead th.desc .si::after{content:'▼';opacity:1}
+thead th .si::after{content:'⬍'}
+tbody tr{border-bottom:1px solid var(--border);transition:background .12s}
+tbody tr:hover{background:var(--trow)}
+tbody td{padding:9px 11px;color:var(--txt2);white-space:nowrap}
+td.bold{color:var(--txt1);font-weight:600}
+td.mono{font-family:'DM Mono',monospace;font-size:11px}
+.plat-chip{
+  display:inline-flex;align-items:center;gap:5px;
+  padding:2px 8px;border-radius:4px;font-size:10px;font-weight:700;
+}
+.plat-dot{width:6px;height:6px;border-radius:50%}
+.eng-chip{
+  display:inline-block;padding:2px 7px;border-radius:4px;
+  font-size:10px;font-weight:700;
+}
+.eng-hi{background:rgba(16,185,129,.15);color:#10b981}
+.eng-mid{background:rgba(245,158,11,.13);color:#f59e0b}
+.eng-lo{background:rgba(244,63,94,.13);color:#f43f5e}
+.pag{
+  display:flex;align-items:center;justify-content:space-between;
+  padding-top:12px;gap:10px;flex-wrap:wrap;
+}
+.pag-info{font-size:11px;color:var(--txt3)}
+.pag-ctrl{display:flex;align-items:center;gap:5px}
+.pb{
+  width:28px;height:28px;border-radius:6px;border:1px solid var(--border);
+  background:var(--inp);color:var(--txt2);font-size:11px;font-weight:600;
+  cursor:pointer;transition:all .15s;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Plus Jakarta Sans',sans-serif;
+}
+.pb:hover:not(:disabled){border-color:var(--border-h);color:var(--txt1)}
+.pb.act{background:linear-gradient(135deg,#f9317e,#ff6640);border-color:transparent;color:#fff}
+.pb:disabled{opacity:.3;cursor:not-allowed}
+
+/* ── PLATFORM COLOR UTILS ───────────────────── */
+.c-ig{color:#f9317e}.c-fb{color:#1877f2}.c-tw{color:#1d9bf0}.c-li{color:#0a66c2}.c-yt{color:#ff0000}
+
+/* ── FADE IN ─────────────────────────────────── */
+.fi{animation:fi .4s ease both}
+.fi1{animation-delay:.04s}.fi2{animation-delay:.09s}.fi3{animation-delay:.14s}
+.fi4{animation-delay:.19s}.fi5{animation-delay:.24s}
+@keyframes fi{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+
+/* ── RESPONSIVE ─────────────────────────────── */
+@media(max-width:1200px){
+  .kpi-grid{grid-template-columns:repeat(3,1fr)}
+  .charts-r1{grid-template-columns:1fr}
+  .charts-r2{grid-template-columns:1fr 1fr}
+  .charts-r2 .ccard:last-child{grid-column:1/-1}
+}
+@media(max-width:768px){
+  .wrap{padding:0 12px 32px}
+  .kpi-grid{grid-template-columns:repeat(2,1fr);gap:9px}
+  .charts-r1,.charts-r2{grid-template-columns:1fr}
+  .charts-r2 .ccard:last-child{grid-column:auto}
+  .kpi-val{font-size:18px}
+  .hd-text h1{font-size:15px}
+}
+@media(max-width:420px){
+  .kpi-grid{grid-template-columns:1fr 1fr;gap:7px}
+}
+</style>
+</head>
+<body>
+
+<div id="loader">
+  <div class="loader-bar"><div class="loader-fill"></div></div>
+  <div class="loader-label">Fetching social signals…</div>
+</div>
+
+<div class="wrap" id="app" style="display:none">
+
+  <!-- HEADER -->
+  <header class="fi">
+    <div class="hd-left">
+      <div class="logo">
+        <span class="logo-ig"></span><span class="logo-fb"></span><span class="logo-tw"></span><span class="logo-li"></span><span class="logo-yt"></span>
+      </div>
+      <div class="hd-text">
+        <h1>Social Engagement Dashboard</h1>
+        <p id="hd-sub">Loading…</p>
+      </div>
+    </div>
+    <div class="hd-right">
+      <button class="btn-icon" id="btnTheme" title="Toggle theme">🌙</button>
+    </div>
+  </header>
+
+  <!-- PLATFORM TABS -->
+  <div class="platform-tabs fi fi1" id="platformTabs">
+    <button class="ptab ptab-all active" data-plat="All" style="--pt-color:rgba(249,49,126,.5)">
+      <span class="dot"></span>All Platforms
+    </button>
+    <button class="ptab ptab-ig" data-plat="Instagram"><span class="dot"></span>Instagram</button>
+    <button class="ptab ptab-fb" data-plat="Facebook"><span class="dot"></span>Facebook</button>
+    <button class="ptab ptab-tw" data-plat="X (Twitter)"><span class="dot"></span>X (Twitter)</button>
+    <button class="ptab ptab-li" data-plat="LinkedIn"><span class="dot"></span>LinkedIn</button>
+    <button class="ptab ptab-yt" data-plat="YouTube"><span class="dot"></span>YouTube</button>
+  </div>
+
+  <!-- DATE FILTER -->
+  <div class="filter-bar fi fi2">
+    <label>DATE RANGE</label>
+    <input type="date" class="date-input" id="dateFrom">
+    <span style="color:var(--txt3);font-size:11px">to</span>
+    <input type="date" class="date-input" id="dateTo">
+    <button class="btn-apply" id="btnApply">Apply</button>
+    <button class="btn-clear" id="btnClear">Clear</button>
+    <div class="filter-sep"></div>
+    <label>QUICK</label>
+    <div class="quick-btns">
+      <button class="qbtn" data-days="7">7d</button>
+      <button class="qbtn" data-days="30">30d</button>
+      <button class="qbtn" data-days="90">90d</button>
+      <button class="qbtn active" data-days="0">All</button>
+    </div>
+  </div>
+
+  <!-- KPI CARDS -->
+  <div class="kpi-grid fi fi3" id="kpiGrid"></div>
+
+  <!-- CHARTS ROW 1 -->
+  <div class="charts-r1 fi fi4">
+    <div class="ccard">
+      <div class="ccard-hd">
+        <div><div class="ccard-title">Engagement Trend</div><div class="ccard-sub">Daily total interactions</div></div>
+        <span class="c-badge">LINE</span>
+      </div>
+      <div class="cwrap" style="min-height:210px"><canvas id="cLine"></canvas></div>
+    </div>
+    <div class="ccard">
+      <div class="ccard-hd">
+        <div><div class="ccard-title">Platform Breakdown</div><div class="ccard-sub">Engagement per platform</div></div>
+        <span class="c-badge">BAR</span>
+      </div>
+      <div class="cwrap" style="min-height:210px"><canvas id="cPlatBar"></canvas></div>
+    </div>
+  </div>
+
+  <!-- CHARTS ROW 2 -->
+  <div class="charts-r2 fi fi5">
+    <div class="ccard">
+      <div class="ccard-hd">
+        <div><div class="ccard-title">Likes · Comments · Shares</div><div class="ccard-sub">Grouped by platform</div></div>
+        <span class="c-badge">GROUP</span>
+      </div>
+      <div class="cwrap" style="min-height:200px"><canvas id="cGroup"></canvas></div>
+    </div>
+    <div class="ccard">
+      <div class="ccard-hd">
+        <div><div class="ccard-title">Audience Demographics</div><div class="ccard-sub">Age-group split</div></div>
+        <span class="c-badge">PIE</span>
+      </div>
+      <div class="cwrap" style="min-height:200px"><canvas id="cPie"></canvas></div>
+    </div>
+    <div class="ccard">
+      <div class="ccard-hd">
+        <div><div class="ccard-title">Top Performing Posts</div><div class="ccard-sub">By total engagement</div></div>
+        <span class="c-badge">HBAR</span>
+      </div>
+      <div class="cwrap" style="min-height:200px"><canvas id="cHbar"></canvas></div>
+    </div>
+  </div>
+
+  <!-- DATA TABLE -->
+  <div class="tsec fi fi5">
+    <div class="ttool">
+      <div class="ttitle">Post Records <span id="recCount" style="font-weight:400;font-size:12px;color:var(--txt3)"></span></div>
+      <div class="tcontrols">
+        <div class="srch-wrap">
+          <span class="srch-ico">🔍</span>
+          <input type="text" id="tSearch" placeholder="Search posts…">
+        </div>
+        <select class="sel-ps" id="selPS">
+          <option value="10">10 rows</option>
+          <option value="20" selected>20 rows</option>
+          <option value="50">50 rows</option>
+          <option value="100">100 rows</option>
+        </select>
+        <button class="btn-exp" id="btnCSV">⬇ Export CSV</button>
+      </div>
+    </div>
+    <div class="twrap">
+      <table id="dataTable">
+        <thead><tr>
+          <th data-col="id">Post ID<span class="si"></span></th>
+          <th data-col="platform">Platform<span class="si"></span></th>
+          <th data-col="date">Date<span class="si"></span></th>
+          <th data-col="likes">Likes<span class="si"></span></th>
+          <th data-col="comments">Comments<span class="si"></span></th>
+          <th data-col="shares">Shares<span class="si"></span></th>
+          <th data-col="reach">Reach<span class="si"></span></th>
+          <th data-col="engRate">Eng. Rate<span class="si"></span></th>
+        </tr></thead>
+        <tbody id="tBody"></tbody>
+      </table>
+    </div>
+    <div class="pag">
+      <div class="pag-info" id="pagInfo"></div>
+      <div class="pag-ctrl" id="pagCtrl"></div>
+    </div>
+  </div>
+
+</div><!-- /wrap -->
+
+<script>
+// ════════════════════════════════════════════
+//  DATA GENERATION
+// ════════════════════════════════════════════
+const PLATFORMS = ['Instagram','Facebook','X (Twitter)','LinkedIn','YouTube'];
+const PLAT_CFG = {
+  'Instagram': { color:'#f9317e', bg:'rgba(249,49,126,.15)', kc1:'#f9317e', kc2:'#ff8c42', cls:'ig' },
+  'Facebook':  { color:'#1877f2', bg:'rgba(24,119,242,.15)', kc1:'#1877f2', kc2:'#0a4fb4', cls:'fb' },
+  'X (Twitter)':{ color:'#1d9bf0',bg:'rgba(29,155,240,.15)', kc1:'#1d9bf0', kc2:'#0b7abf', cls:'tw' },
+  'LinkedIn':  { color:'#0a66c2', bg:'rgba(10,102,194,.15)', kc1:'#0a66c2', kc2:'#063d7a', cls:'li' },
+  'YouTube':   { color:'#ff0000', bg:'rgba(255,0,0,.13)',    kc1:'#ff0000', kc2:'#b30000', cls:'yt' },
+};
+const DEMO_LABELS = ['13–17','18–24','25–34','35–44','45–54','55+'];
+const DEMO_DATA   = [5,22,34,20,12,7];
+
+function rnd(a,b){return Math.floor(Math.random()*(b-a+1))+a}
+function pickRnd(a){return a[rnd(0,a.length-1)]}
+function dateStr(d){return d.toISOString().slice(0,10)}
+
+function genData(n=200){
+  const rows=[];
+  const now=new Date('2024-06-30');
+  for(let i=1;i<=n;i++){
+    const daysBack=rnd(0,364);
+    const d=new Date(now);d.setDate(d.getDate()-daysBack);
+    const plat=pickRnd(PLATFORMS);
+    const reach=rnd(800,120000);
+    const likes=Math.round(reach*rnd(2,14)/100);
+    const comments=Math.round(likes*rnd(5,25)/100);
+    const shares=Math.round(likes*rnd(3,18)/100);
+    const eng=((likes+comments+shares)/reach*100);
+    rows.push({
+      id:`P${String(i).padStart(5,'0')}`,
+      platform:plat,
+      date:dateStr(d),
+      likes,comments,shares,reach,
+      engRate:parseFloat(eng.toFixed(2)),
+      _ts:d.getTime()
+    });
+  }
+  return rows;
+}
+
+const RAW = genData(200);
+
+// ════════════════════════════════════════════
+//  STATE
+// ════════════════════════════════════════════
+let filtered=[...RAW];
+let activePlat='All';
+let dateFrom='', dateTo='';
+let sortCol='date', sortDir=-1;
+let page=1, pageSize=20, searchQ='';
+
+// ════════════════════════════════════════════
+//  FILTER
+// ════════════════════════════════════════════
+function applyFilters(){
+  filtered=RAW.filter(r=>{
+    if(activePlat!=='All'&&r.platform!==activePlat)return false;
+    if(dateFrom&&r.date<dateFrom)return false;
+    if(dateTo&&r.date>dateTo)return false;
+    return true;
+  });
+  if(searchQ){
+    const q=searchQ.toLowerCase();
+    filtered=filtered.filter(r=>
+      r.id.toLowerCase().includes(q)||
+      r.platform.toLowerCase().includes(q)||
+      r.date.includes(q)
+    );
+  }
+  page=1;
+  renderAll();
+}
+
+// ════════════════════════════════════════════
+//  KPI
+// ════════════════════════════════════════════
+const KPI_DEF=[
+  {key:'followers',label:'Followers',fmt:v=>fmtNum(v),icon:'👥',pct:72,kc1:'#8b5cf6',kc2:'#6d28d9',bg:'rgba(139,92,246,.12)'},
+  {key:'likes',    label:'Total Likes',fmt:v=>fmtNum(v),icon:'❤️',pct:0,kc1:'#f9317e',kc2:'#ff8c42',bg:'rgba(249,49,126,.12)'},
+  {key:'comments', label:'Comments',fmt:v=>fmtNum(v),icon:'💬',pct:0,kc1:'#06b6d4',kc2:'#0891b2',bg:'rgba(6,182,212,.12)'},
+  {key:'shares',   label:'Shares',fmt:v=>fmtNum(v),icon:'🔁',pct:0,kc1:'#10b981',kc2:'#059669',bg:'rgba(16,185,129,.12)'},
+  {key:'engRate',  label:'Eng. Rate',fmt:v=>v+'%',icon:'📊',pct:0,kc1:'#f59e0b',kc2:'#d97706',bg:'rgba(245,158,11,.12)'},
+  {key:'reach',    label:'Total Reach',fmt:v=>fmtNum(v),icon:'📡',pct:0,kc1:'#3b82f6',kc2:'#2563eb',bg:'rgba(59,130,246,.12)'},
+];
+function fmtNum(n){
+  if(n>=1e6)return (n/1e6).toFixed(1)+'M';
+  if(n>=1e3)return (n/1e3).toFixed(1)+'K';
+  return n.toLocaleString();
+}
+function computeKPIs(data){
+  const totalLikes=data.reduce((s,r)=>s+r.likes,0);
+  const totalComments=data.reduce((s,r)=>s+r.comments,0);
+  const totalShares=data.reduce((s,r)=>s+r.shares,0);
+  const totalReach=data.reduce((s,r)=>s+r.reach,0);
+  const engRate=totalReach>0?((totalLikes+totalComments+totalShares)/totalReach*100):0;
+  // followers: synthetic based on reach
+  const followers=Math.round(totalReach*0.18);
+  return{followers,likes:totalLikes,comments:totalComments,shares:totalShares,engRate:parseFloat(engRate.toFixed(2)),reach:totalReach};
+}
+function renderKPIs(){
+  const kpis=computeKPIs(filtered);
+  const all=computeKPIs(RAW);
+  const grid=document.getElementById('kpiGrid');
+  grid.innerHTML='';
+  KPI_DEF.forEach(cfg=>{
+    const v=kpis[cfg.key];
+    const av=all[cfg.key];
+    const pctFill=av>0?Math.round(v/av*100):cfg.pct;
+    let deltaHtml='';
+    if(av>0&&filtered.length<RAW.length){
+      const diff=((v-av)/av*100).toFixed(1);
+      const cls=diff>=0?'up':'down';
+      const arrow=diff>=0?'▲':'▼';
+      deltaHtml=`<div class="kpi-sub ${cls}">${arrow} ${Math.abs(diff)}% <span style="color:var(--txt3);font-weight:400">vs all</span></div>`;
+    }else{
+      deltaHtml=`<div class="kpi-sub flat">— all data</div>`;
+    }
+    const c=document.createElement('div');
+    c.className='kpi';
+    c.style.setProperty('--kc1',cfg.kc1);c.style.setProperty('--kc2',cfg.kc2);
+    c.innerHTML=`
+      <div class="kpi-top">
+        <span class="kpi-tag">${cfg.label}</span>
+        <span class="kpi-ico" style="background:${cfg.bg}">${cfg.icon}</span>
+      </div>
+      <div class="kpi-val">${cfg.fmt(v)}</div>
+      ${deltaHtml}
+      <div class="kpi-bar"><div class="kpi-bar-fill" style="width:${pctFill}%;background:linear-gradient(90deg,${cfg.kc1},${cfg.kc2})"></div></div>
+    `;
+    grid.appendChild(c);
+  });
+}
+
+// ════════════════════════════════════════════
+//  CHARTS
+// ════════════════════════════════════════════
+let charts={};
+const dark=()=>document.documentElement.getAttribute('data-theme')==='dark';
+function gC(){
+  return{
+    grid:dark()?'rgba(255,255,255,0.05)':'rgba(0,0,0,0.06)',
+    tick:dark()?'#3a4466':'#9aa3c2',
+    font:{family:'Plus Jakarta Sans',size:10},
+    leg:dark()?'#7b8ab8':'#4a5578',
+  };
+}
+function destroyC(k){if(charts[k]){charts[k].destroy();delete charts[k]}}
+
+const PLAT_COLORS=PLATFORMS.map(p=>PLAT_CFG[p].color);
+
+// Line – engagement trend
+function buildLine(){
+  destroyC('line');
+  // group by date
+  const byDate={};
+  filtered.forEach(r=>{
+    byDate[r.date]=(byDate[r.date]||0)+(r.likes+r.comments+r.shares);
+  });
+  const keys=Object.keys(byDate).sort();
+  // limit to 60 most recent
+  const shown=keys.slice(-60);
+  const vals=shown.map(k=>byDate[k]);
+  const c=gC();
+  const ctx=document.getElementById('cLine').getContext('2d');
+  const g=ctx.createLinearGradient(0,0,0,220);
+  g.addColorStop(0,'rgba(249,49,126,0.28)');g.addColorStop(1,'rgba(249,49,126,0)');
+  charts.line=new Chart(ctx,{
+    type:'line',
+    data:{
+      labels:shown.map(d=>d.slice(5)),
+      datasets:[{
+        label:'Engagement',data:vals,
+        borderColor:'#f9317e',backgroundColor:g,
+        borderWidth:2,pointRadius:0,pointHoverRadius:4,
+        tension:.38,fill:true
+      }]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:t=>` ${t.parsed.y.toLocaleString()}`}}},
+      scales:{
+        x:{grid:{color:c.grid},ticks:{color:c.tick,font:c.font,maxTicksLimit:10,maxRotation:0}},
+        y:{grid:{color:c.grid},ticks:{color:c.tick,font:c.font,callback:v=>fmtNum(v)}}
+      }
+    }
+  });
+}
+
+// Platform bar
+function buildPlatBar(){
+  destroyC('platbar');
+  const byP={};PLATFORMS.forEach(p=>{byP[p]=0});
+  filtered.forEach(r=>{byP[r.platform]=(byP[r.platform]||0)+(r.likes+r.comments+r.shares)});
+  const c=gC();
+  const ctx=document.getElementById('cPlatBar').getContext('2d');
+  charts.platbar=new Chart(ctx,{
+    type:'bar',
+    data:{
+      labels:PLATFORMS.map(p=>p.replace('X (Twitter)','X').replace('Instagram','IG').replace('Facebook','FB').replace('LinkedIn','LI').replace('YouTube','YT')),
+      datasets:[{data:PLATFORMS.map(p=>byP[p]),backgroundColor:PLAT_COLORS.map(c=>c+'cc'),borderRadius:6}]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:t=>` ${t.parsed.y.toLocaleString()}`}}},
+      scales:{
+        x:{grid:{display:false},ticks:{color:c.tick,font:c.font}},
+        y:{grid:{color:c.grid},ticks:{color:c.tick,font:c.font,callback:v=>fmtNum(v)}}
+      }
+    }
+  });
+}
+
+// Grouped bar – likes/comments/shares by platform
+function buildGroup(){
+  destroyC('group');
+  const byP={};
+  PLATFORMS.forEach(p=>{byP[p]={l:0,c:0,s:0}});
+  filtered.forEach(r=>{byP[r.platform].l+=r.likes;byP[r.platform].c+=r.comments;byP[r.platform].s+=r.shares});
+  const labels=PLATFORMS.map(p=>p.replace('X (Twitter)','X').replace('Instagram','IG').replace('Facebook','FB').replace('LinkedIn','LI').replace('YouTube','YT'));
+  const c=gC();
+  const ctx=document.getElementById('cGroup').getContext('2d');
+  charts.group=new Chart(ctx,{
+    type:'bar',
+    data:{
+      labels,
+      datasets:[
+        {label:'Likes',data:PLATFORMS.map(p=>byP[p].l),backgroundColor:'rgba(249,49,126,.75)',borderRadius:4},
+        {label:'Comments',data:PLATFORMS.map(p=>byP[p].c),backgroundColor:'rgba(6,182,212,.75)',borderRadius:4},
+        {label:'Shares',data:PLATFORMS.map(p=>byP[p].s),backgroundColor:'rgba(16,185,129,.75)',borderRadius:4},
+      ]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{labels:{color:c.leg,font:{family:'Plus Jakarta Sans',size:10},boxWidth:9,padding:8}}},
+      scales:{
+        x:{grid:{display:false},ticks:{color:c.tick,font:c.font}},
+        y:{grid:{color:c.grid},ticks:{color:c.tick,font:c.font,callback:v=>fmtNum(v)}}
+      }
+    }
+  });
+}
+
+// Pie – demographics
+function buildPie(){
+  destroyC('pie');
+  const c=gC();
+  const ctx=document.getElementById('cPie').getContext('2d');
+  charts.pie=new Chart(ctx,{
+    type:'doughnut',
+    data:{
+      labels:DEMO_LABELS,
+      datasets:[{data:DEMO_DATA,backgroundColor:['#f9317e','#ff8c42','#f59e0b','#10b981','#1d9bf0','#8b5cf6'],borderWidth:0,hoverOffset:6}]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,cutout:'60%',
+      plugins:{
+        legend:{position:'right',labels:{color:c.leg,font:{family:'Plus Jakarta Sans',size:10},padding:8,boxWidth:9}},
+        tooltip:{callbacks:{label:t=>` ${t.label}: ${t.parsed}%`}}
+      }
+    }
+  });
+}
+
+// Horizontal bar – top 10 posts
+function buildHbar(){
+  destroyC('hbar');
+  const sorted=[...filtered].sort((a,b)=>(b.likes+b.comments+b.shares)-(a.likes+a.comments+a.shares)).slice(0,10);
+  const c=gC();
+  const ctx=document.getElementById('cHbar').getContext('2d');
+  charts.hbar=new Chart(ctx,{
+    type:'bar',
+    data:{
+      labels:sorted.map(r=>r.id),
+      datasets:[{
+        data:sorted.map(r=>r.likes+r.comments+r.shares),
+        backgroundColor:sorted.map(r=>PLAT_CFG[r.platform].color+'cc'),
+        borderRadius:4
+      }]
+    },
+    options:{
+      indexAxis:'y',responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:t=>` ${t.parsed.x.toLocaleString()} interactions`}}},
+      scales:{
+        x:{grid:{color:c.grid},ticks:{color:c.tick,font:c.font,callback:v=>fmtNum(v)}},
+        y:{grid:{display:false},ticks:{color:c.tick,font:c.font}}
+      }
+    }
+  });
+}
+
+function buildAllCharts(){buildLine();buildPlatBar();buildGroup();buildPie();buildHbar()}
+
+// ════════════════════════════════════════════
+//  TABLE
+// ════════════════════════════════════════════
+let sortedData=[];
+function getSorted(){
+  const d=[...filtered];
+  d.sort((a,b)=>{
+    let av=a[sortCol],bv=b[sortCol];
+    if(typeof av==='string')return sortDir*av.localeCompare(bv);
+    return sortDir*(av-bv);
+  });
+  return d;
+}
+function renderTable(){
+  sortedData=getSorted();
+  const start=(page-1)*pageSize, end=start+pageSize;
+  const pageData=sortedData.slice(start,end);
+  document.getElementById('recCount').textContent=`— ${sortedData.length.toLocaleString()} posts`;
+  const tb=document.getElementById('tBody');
+  tb.innerHTML='';
+  if(!pageData.length){
+    tb.innerHTML=`<tr><td colspan="8" style="text-align:center;padding:28px;color:var(--txt3)">No posts match the current filters.</td></tr>`;
+  }
+  pageData.forEach(r=>{
+    const pc=PLAT_CFG[r.platform];
+    const eCls=r.engRate>=5?'eng-hi':r.engRate>=2?'eng-mid':'eng-lo';
+    const tr=document.createElement('tr');
+    tr.innerHTML=`
+      <td class="mono bold">${r.id}</td>
+      <td><span class="plat-chip" style="background:${pc.bg}"><span class="plat-dot" style="background:${pc.color}"></span><span style="color:${pc.color}">${r.platform.replace('X (Twitter)','X (Twitter)')}</span></span></td>
+      <td>${r.date}</td>
+      <td class="bold">${r.likes.toLocaleString()}</td>
+      <td>${r.comments.toLocaleString()}</td>
+      <td>${r.shares.toLocaleString()}</td>
+      <td>${fmtNum(r.reach)}</td>
+      <td><span class="eng-chip ${eCls}">${r.engRate.toFixed(2)}%</span></td>
+    `;
+    tb.appendChild(tr);
+  });
+  renderPag();
+}
+function renderPag(){
+  const total=sortedData.length;
+  const pages=Math.max(1,Math.ceil(total/pageSize));
+  const s=(page-1)*pageSize+1, e=Math.min(page*pageSize,total);
+  document.getElementById('pagInfo').textContent=total===0?'No records':`${s}–${e} of ${total.toLocaleString()}`;
+  const ctrl=document.getElementById('pagCtrl');ctrl.innerHTML='';
+  const addB=(lbl,pg,act,dis)=>{
+    const b=document.createElement('button');
+    b.className='pb'+(act?' act':'');b.disabled=dis;b.textContent=lbl;
+    b.addEventListener('click',()=>{page=pg;renderTable()});
+    ctrl.appendChild(b);
+  };
+  addB('‹',page-1,false,page===1);
+  const rng=[];
+  if(pages<=7){for(let i=1;i<=pages;i++)rng.push(i);}
+  else{
+    rng.push(1);if(page>3)rng.push('…');
+    for(let i=Math.max(2,page-1);i<=Math.min(pages-1,page+1);i++)rng.push(i);
+    if(page<pages-2)rng.push('…');rng.push(pages);
+  }
+  rng.forEach(p=>{
+    if(p==='…'){const sp=document.createElement('span');sp.textContent='…';sp.style.cssText='color:var(--txt3);padding:0 3px;font-size:11px';ctrl.appendChild(sp);}
+    else addB(p,p,p===page,false);
+  });
+  addB('›',page+1,false,page===pages);
+}
+
+// sort
+document.querySelectorAll('thead th[data-col]').forEach(th=>{
+  th.addEventListener('click',()=>{
+    const col=th.getAttribute('data-col');
+    if(sortCol===col)sortDir*=-1;else{sortCol=col;sortDir=-1;}
+    document.querySelectorAll('thead th').forEach(t=>t.classList.remove('asc','desc'));
+    th.classList.add(sortDir===1?'asc':'desc');
+    renderTable();
+  });
+});
+
+// ════════════════════════════════════════════
+//  EXPORT CSV
+// ════════════════════════════════════════════
+document.getElementById('btnCSV').addEventListener('click',()=>{
+  const cols=['id','platform','date','likes','comments','shares','reach','engRate'];
+  const csv=[cols.join(','),...getSorted().map(r=>cols.map(c=>{const v=r[c];return typeof v==='string'&&v.includes(',')? `"${v}"`:v}).join(','))].join('\n');
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
+  a.download='social_engagement.csv';a.click();
+});
+
+// ════════════════════════════════════════════
+//  RENDER ALL
+// ════════════════════════════════════════════
+function renderAll(){
+  renderKPIs();
+  buildAllCharts();
+  renderTable();
+}
+
+// ════════════════════════════════════════════
+//  EVENT WIRING
+// ════════════════════════════════════════════
+// Platform tabs
+document.getElementById('platformTabs').addEventListener('click',e=>{
+  const btn=e.target.closest('.ptab');
+  if(!btn)return;
+  document.querySelectorAll('.ptab').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  activePlat=btn.getAttribute('data-plat');
+  applyFilters();
+});
+
+// Date apply / clear
+document.getElementById('btnApply').addEventListener('click',()=>{
+  dateFrom=document.getElementById('dateFrom').value;
+  dateTo=document.getElementById('dateTo').value;
+  applyFilters();
+});
+document.getElementById('btnClear').addEventListener('click',()=>{
+  dateFrom='';dateTo='';
+  document.getElementById('dateFrom').value='';
+  document.getElementById('dateTo').value='';
+  document.querySelectorAll('.qbtn').forEach(b=>b.classList.remove('active'));
+  document.querySelector('.qbtn[data-days="0"]').classList.add('active');
+  applyFilters();
+});
+
+// Quick date btns
+document.querySelectorAll('.qbtn').forEach(b=>{
+  b.addEventListener('click',()=>{
+    document.querySelectorAll('.qbtn').forEach(q=>q.classList.remove('active'));
+    b.classList.add('active');
+    const days=parseInt(b.getAttribute('data-days'));
+    if(days===0){dateFrom='';dateTo='';}
+    else{
+      const to=new Date('2024-06-30');
+      const from=new Date(to);from.setDate(from.getDate()-days);
+      dateFrom=dateStr(from);dateTo=dateStr(to);
+      document.getElementById('dateFrom').value=dateFrom;
+      document.getElementById('dateTo').value=dateTo;
+    }
+    applyFilters();
+  });
+});
+
+// Search
+document.getElementById('tSearch').addEventListener('input',e=>{
+  searchQ=e.target.value;page=1;applyFilters();
+});
+
+// Page size
+document.getElementById('selPS').addEventListener('change',e=>{
+  pageSize=parseInt(e.target.value);page=1;renderTable();
+});
+
+// Theme
+document.getElementById('btnTheme').addEventListener('click',()=>{
+  const t=document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark';
+  document.documentElement.setAttribute('data-theme',t);
+  document.getElementById('btnTheme').textContent=t==='dark'?'🌙':'☀️';
+  buildAllCharts();
+});
+
+// ════════════════════════════════════════════
+//  INIT
+// ════════════════════════════════════════════
+function init(){
+  // set date range defaults
+  const dates=RAW.map(r=>r.date).sort();
+  document.getElementById('dateFrom').value='';
+  document.getElementById('dateTo').value='';
+
+  const now=new Date('2024-06-30');
+  document.getElementById('hd-sub').textContent=
+    `Updated ${now.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})} · ${RAW.length} posts tracked`;
+
+  filtered=[...RAW];
+  renderAll();
+
+  setTimeout(()=>{
+    document.getElementById('loader').classList.add('out');
+    document.getElementById('app').style.display='';
+  },700);
+}
+
+typeof Chart!=='undefined'?init():window.addEventListener('load',init);
+</script>
+</body>
+</html>
