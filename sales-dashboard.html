@@ -1,0 +1,1053 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sales Performance Dashboard</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root[data-theme="dark"] {
+    --bg-base: #050d1a;
+    --bg-surface: #0b1628;
+    --bg-card: rgba(13, 25, 48, 0.85);
+    --bg-card-hover: rgba(17, 32, 60, 0.95);
+    --border: rgba(56, 139, 253, 0.15);
+    --border-hover: rgba(56, 139, 253, 0.4);
+    --text-primary: #e8f0fe;
+    --text-secondary: #8ba3cc;
+    --text-muted: #4a6080;
+    --accent: #3b82f6;
+    --accent-bright: #60a5fa;
+    --accent-glow: rgba(59, 130, 246, 0.25);
+    --green: #10b981;
+    --green-soft: rgba(16, 185, 129, 0.15);
+    --red: #f43f5e;
+    --red-soft: rgba(244, 63, 94, 0.15);
+    --amber: #f59e0b;
+    --amber-soft: rgba(245, 158, 11, 0.15);
+    --purple: #8b5cf6;
+    --purple-soft: rgba(139, 92, 246, 0.15);
+    --cyan: #06b6d4;
+    --shadow: 0 4px 24px rgba(0,0,0,0.4);
+    --shadow-lg: 0 8px 40px rgba(0,0,0,0.6);
+    --chart-bg: rgba(13, 25, 48, 0.6);
+    --table-row-hover: rgba(59,130,246,0.07);
+    --input-bg: rgba(5, 13, 26, 0.8);
+    --scrollbar-thumb: rgba(59,130,246,0.3);
+  }
+  :root[data-theme="light"] {
+    --bg-base: #f0f4ff;
+    --bg-surface: #e4eaf8;
+    --bg-card: rgba(255,255,255,0.9);
+    --bg-card-hover: rgba(255,255,255,1);
+    --border: rgba(59,130,246,0.18);
+    --border-hover: rgba(59,130,246,0.45);
+    --text-primary: #0f1e3c;
+    --text-secondary: #3a5280;
+    --text-muted: #8ba3cc;
+    --accent: #2563eb;
+    --accent-bright: #3b82f6;
+    --accent-glow: rgba(37,99,235,0.15);
+    --green: #059669;
+    --green-soft: rgba(5,150,105,0.12);
+    --red: #e11d48;
+    --red-soft: rgba(225,29,72,0.1);
+    --amber: #d97706;
+    --amber-soft: rgba(217,119,6,0.12);
+    --purple: #7c3aed;
+    --purple-soft: rgba(124,58,237,0.1);
+    --cyan: #0891b2;
+    --shadow: 0 4px 20px rgba(30,60,120,0.1);
+    --shadow-lg: 0 8px 32px rgba(30,60,120,0.16);
+    --chart-bg: rgba(255,255,255,0.7);
+    --table-row-hover: rgba(37,99,235,0.06);
+    --input-bg: rgba(240,244,255,0.9);
+    --scrollbar-thumb: rgba(37,99,235,0.25);
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:'Inter',sans-serif;
+    background:var(--bg-base);
+    color:var(--text-primary);
+    min-height:100vh;
+    transition:background .3s,color .3s;
+    overflow-x:hidden;
+  }
+  body::before{
+    content:'';position:fixed;inset:0;
+    background:radial-gradient(ellipse 80% 50% at 20% 10%,rgba(59,130,246,0.07) 0%,transparent 60%),
+               radial-gradient(ellipse 60% 40% at 80% 80%,rgba(139,92,246,0.05) 0%,transparent 60%);
+    pointer-events:none;z-index:0;
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar{width:6px;height:6px}
+  ::-webkit-scrollbar-track{background:transparent}
+  ::-webkit-scrollbar-thumb{background:var(--scrollbar-thumb);border-radius:3px}
+
+  /* Loading overlay */
+  #loading{
+    position:fixed;inset:0;z-index:9999;
+    background:var(--bg-base);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;
+    transition:opacity .5s;
+  }
+  #loading.hidden{opacity:0;pointer-events:none}
+  .loader-ring{
+    width:56px;height:56px;border-radius:50%;
+    border:3px solid var(--border);
+    border-top-color:var(--accent);
+    animation:spin .9s linear infinite;
+  }
+  .loader-text{color:var(--text-secondary);font-size:14px;font-weight:500;letter-spacing:.05em}
+  @keyframes spin{to{transform:rotate(360deg)}}
+
+  /* Layout */
+  .wrapper{position:relative;z-index:1;padding:0 24px 40px;max-width:1600px;margin:0 auto}
+
+  /* Header */
+  header{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:20px 0 16px;gap:16px;flex-wrap:wrap;
+  }
+  .header-left{display:flex;align-items:center;gap:14px}
+  .logo-mark{
+    width:40px;height:40px;border-radius:10px;
+    background:linear-gradient(135deg,var(--accent),var(--purple));
+    display:flex;align-items:center;justify-content:center;
+    font-size:18px;font-weight:800;color:#fff;
+    box-shadow:0 0 20px var(--accent-glow);
+    flex-shrink:0;
+  }
+  .header-title h1{
+    font-size:20px;font-weight:700;
+    background:linear-gradient(135deg,var(--text-primary),var(--accent-bright));
+    -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+    line-height:1.2;
+  }
+  .header-title p{font-size:12px;color:var(--text-muted);margin-top:2px}
+  .header-right{display:flex;align-items:center;gap:10px}
+  .last-updated{font-size:11px;color:var(--text-muted);font-family:'JetBrains Mono',monospace}
+  .btn-icon{
+    width:36px;height:36px;border-radius:8px;border:1px solid var(--border);
+    background:var(--bg-card);cursor:pointer;
+    display:flex;align-items:center;justify-content:center;
+    color:var(--text-secondary);font-size:16px;transition:all .2s;
+    backdrop-filter:blur(8px);
+  }
+  .btn-icon:hover{border-color:var(--border-hover);color:var(--accent-bright);background:var(--bg-card-hover)}
+
+  /* Filters strip */
+  .filters-bar{
+    display:flex;align-items:center;gap:10px;
+    padding:14px 18px;margin-bottom:20px;
+    background:var(--bg-card);
+    border:1px solid var(--border);border-radius:14px;
+    backdrop-filter:blur(12px);
+    flex-wrap:wrap;
+  }
+  .filters-bar label{font-size:11px;color:var(--text-muted);font-weight:600;letter-spacing:.06em;white-space:nowrap}
+  .filter-group{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+  .filter-sep{width:1px;height:24px;background:var(--border);flex-shrink:0}
+  select.filter-select{
+    background:var(--input-bg);
+    border:1px solid var(--border);
+    border-radius:7px;
+    color:var(--text-primary);
+    font-family:'Inter',sans-serif;
+    font-size:12px;font-weight:500;
+    padding:6px 26px 6px 10px;
+    cursor:pointer;transition:all .2s;
+    appearance:none;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238ba3cc' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat:no-repeat;background-position:right 8px center;
+  }
+  select.filter-select:hover,select.filter-select:focus{border-color:var(--border-hover);outline:none}
+  .btn-reset{
+    padding:6px 14px;border-radius:7px;
+    border:1px solid var(--border);
+    background:transparent;color:var(--text-secondary);
+    font-size:12px;font-weight:500;cursor:pointer;
+    transition:all .2s;white-space:nowrap;
+    font-family:'Inter',sans-serif;
+  }
+  .btn-reset:hover{border-color:var(--accent);color:var(--accent-bright);background:var(--accent-glow)}
+
+  /* KPI Cards */
+  .kpi-grid{
+    display:grid;
+    grid-template-columns:repeat(6,1fr);
+    gap:14px;margin-bottom:20px;
+  }
+  .kpi-card{
+    background:var(--bg-card);
+    border:1px solid var(--border);
+    border-radius:14px;padding:18px 16px;
+    backdrop-filter:blur(12px);
+    transition:all .25s;cursor:default;
+    position:relative;overflow:hidden;
+  }
+  .kpi-card::before{
+    content:'';position:absolute;
+    top:0;left:0;right:0;height:2px;
+    border-radius:14px 14px 0 0;
+    background:var(--kpi-color,var(--accent));
+    opacity:0;transition:opacity .25s;
+  }
+  .kpi-card:hover{
+    transform:translateY(-2px);border-color:var(--border-hover);
+    background:var(--bg-card-hover);box-shadow:var(--shadow);
+  }
+  .kpi-card:hover::before{opacity:1}
+  .kpi-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+  .kpi-label{font-size:11px;font-weight:600;color:var(--text-muted);letter-spacing:.06em;text-transform:uppercase}
+  .kpi-icon{
+    width:30px;height:30px;border-radius:8px;
+    display:flex;align-items:center;justify-content:center;
+    font-size:14px;background:var(--kpi-bg,var(--accent-glow));
+  }
+  .kpi-value{font-size:22px;font-weight:800;line-height:1;margin-bottom:6px;color:var(--text-primary)}
+  .kpi-delta{display:flex;align-items:center;gap:4px;font-size:11px;font-weight:600}
+  .kpi-delta.up{color:var(--green)}
+  .kpi-delta.down{color:var(--red)}
+  .kpi-delta span{color:var(--text-muted);font-weight:400}
+
+  /* Charts grid */
+  .charts-row{display:grid;gap:16px;margin-bottom:16px}
+  .charts-row.top{grid-template-columns:2fr 1.2fr 1fr}
+  .charts-row.bottom{grid-template-columns:1.3fr 1fr}
+  .chart-card{
+    background:var(--bg-card);
+    border:1px solid var(--border);
+    border-radius:14px;padding:20px;
+    backdrop-filter:blur(12px);
+    transition:border-color .2s,box-shadow .2s;
+    display:flex;flex-direction:column;gap:14px;
+  }
+  .chart-card:hover{border-color:var(--border-hover);box-shadow:var(--shadow)}
+  .chart-header{display:flex;align-items:center;justify-content:space-between}
+  .chart-title{font-size:13px;font-weight:700;color:var(--text-primary)}
+  .chart-subtitle{font-size:11px;color:var(--text-muted);margin-top:2px}
+  .chart-badge{
+    font-size:10px;font-weight:600;padding:3px 8px;border-radius:20px;
+    background:var(--accent-glow);color:var(--accent-bright);
+    border:1px solid var(--border);letter-spacing:.04em;
+  }
+  .chart-wrap{position:relative;flex:1;min-height:200px}
+  .chart-wrap canvas{position:absolute;inset:0;width:100%!important;height:100%!important}
+
+  /* Data table section */
+  .table-section{
+    background:var(--bg-card);
+    border:1px solid var(--border);
+    border-radius:14px;padding:20px;
+    backdrop-filter:blur(12px);
+    margin-bottom:20px;
+  }
+  .table-toolbar{
+    display:flex;align-items:center;justify-content:space-between;
+    gap:12px;flex-wrap:wrap;margin-bottom:16px;
+  }
+  .table-title{font-size:14px;font-weight:700;color:var(--text-primary)}
+  .table-controls{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .search-wrap{position:relative}
+  .search-wrap input{
+    background:var(--input-bg);
+    border:1px solid var(--border);border-radius:8px;
+    color:var(--text-primary);font-family:'Inter',sans-serif;
+    font-size:12px;padding:7px 32px 7px 32px;
+    width:220px;transition:border-color .2s;
+  }
+  .search-wrap input:focus{outline:none;border-color:var(--border-hover)}
+  .search-wrap input::placeholder{color:var(--text-muted)}
+  .search-icon{
+    position:absolute;left:10px;top:50%;transform:translateY(-50%);
+    color:var(--text-muted);font-size:13px;pointer-events:none;
+  }
+  .btn-export{
+    padding:7px 16px;border-radius:8px;border:1px solid var(--border);
+    background:var(--input-bg);color:var(--text-secondary);
+    font-size:12px;font-weight:600;cursor:pointer;
+    transition:all .2s;display:flex;align-items:center;gap:6px;
+    font-family:'Inter',sans-serif;
+  }
+  .btn-export:hover{border-color:var(--green);color:var(--green);background:var(--green-soft)}
+  .table-wrap{overflow-x:auto}
+  table{width:100%;border-collapse:collapse;font-size:12px}
+  thead th{
+    padding:10px 12px;text-align:left;
+    font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;
+    color:var(--text-muted);border-bottom:1px solid var(--border);
+    cursor:pointer;user-select:none;white-space:nowrap;
+    transition:color .2s;position:relative;
+  }
+  thead th:hover{color:var(--accent-bright)}
+  thead th .sort-icon{margin-left:4px;opacity:.4;font-size:9px}
+  thead th.asc .sort-icon::after{content:'▲';opacity:1}
+  thead th.desc .sort-icon::after{content:'▼';opacity:1}
+  thead th .sort-icon::after{content:'⬍'}
+  tbody tr{
+    border-bottom:1px solid var(--border);
+    transition:background .15s;
+  }
+  tbody tr:hover{background:var(--table-row-hover)}
+  tbody td{padding:10px 12px;color:var(--text-secondary);white-space:nowrap}
+  tbody td.bold{color:var(--text-primary);font-weight:600}
+  .badge{
+    display:inline-block;padding:2px 8px;border-radius:4px;
+    font-size:10px;font-weight:700;letter-spacing:.04em;
+  }
+  .badge-green{background:var(--green-soft);color:var(--green)}
+  .badge-red{background:var(--red-soft);color:var(--red)}
+  .badge-amber{background:var(--amber-soft);color:var(--amber)}
+  .badge-blue{background:var(--accent-glow);color:var(--accent-bright)}
+  .badge-purple{background:var(--purple-soft);color:var(--purple)}
+
+  /* Pagination */
+  .pagination{
+    display:flex;align-items:center;justify-content:space-between;
+    padding-top:14px;gap:12px;flex-wrap:wrap;
+  }
+  .page-info{font-size:11px;color:var(--text-muted)}
+  .page-controls{display:flex;align-items:center;gap:6px}
+  .page-btn{
+    width:30px;height:30px;border-radius:7px;
+    border:1px solid var(--border);background:var(--input-bg);
+    color:var(--text-secondary);font-size:12px;font-weight:600;
+    cursor:pointer;transition:all .2s;
+    display:flex;align-items:center;justify-content:center;
+    font-family:'Inter',sans-serif;
+  }
+  .page-btn:hover:not(:disabled){border-color:var(--accent);color:var(--accent-bright);background:var(--accent-glow)}
+  .page-btn.active{border-color:var(--accent);background:var(--accent);color:#fff}
+  .page-btn:disabled{opacity:.35;cursor:not-allowed}
+  .page-size-select{
+    background:var(--input-bg);border:1px solid var(--border);border-radius:7px;
+    color:var(--text-primary);font-family:'Inter',sans-serif;font-size:11px;
+    padding:4px 22px 4px 8px;cursor:pointer;appearance:none;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%238ba3cc' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat:no-repeat;background-position:right 6px center;
+  }
+
+  /* Sparkline */
+  .sparkline-wrap{height:40px;position:relative;overflow:hidden}
+  .sparkline-wrap canvas{position:absolute;inset:0}
+
+  /* Utility */
+  .positive{color:var(--green)}
+  .negative{color:var(--red)}
+  .mono{font-family:'JetBrains Mono',monospace;font-size:11px}
+
+  /* Responsive */
+  @media(max-width:1200px){
+    .kpi-grid{grid-template-columns:repeat(3,1fr)}
+    .charts-row.top{grid-template-columns:1fr 1fr}
+    .charts-row.top .chart-card:last-child{grid-column:1/-1}
+    .charts-row.bottom{grid-template-columns:1fr}
+  }
+  @media(max-width:768px){
+    .wrapper{padding:0 14px 30px}
+    .kpi-grid{grid-template-columns:repeat(2,1fr);gap:10px}
+    .charts-row.top,.charts-row.bottom{grid-template-columns:1fr}
+    .filters-bar{padding:10px 12px}
+    .chart-card{padding:14px}
+    header{padding:14px 0 10px}
+    .header-title h1{font-size:16px}
+    .search-wrap input{width:160px}
+  }
+  @media(max-width:480px){
+    .kpi-grid{grid-template-columns:1fr 1fr;gap:8px}
+    .kpi-value{font-size:18px}
+  }
+
+  /* Fade in animation */
+  .fade-in{animation:fadeIn .4s ease both}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+  .fade-in-delay-1{animation-delay:.05s}
+  .fade-in-delay-2{animation-delay:.1s}
+  .fade-in-delay-3{animation-delay:.15s}
+  .fade-in-delay-4{animation-delay:.2s}
+  .fade-in-delay-5{animation-delay:.25s}
+</style>
+</head>
+<body>
+
+<div id="loading">
+  <div class="loader-ring"></div>
+  <div class="loader-text">Loading dashboard…</div>
+</div>
+
+<div class="wrapper" id="app" style="display:none">
+
+  <!-- Header -->
+  <header class="fade-in">
+    <div class="header-left">
+      <div class="logo-mark">S</div>
+      <div class="header-title">
+        <h1>Sales Performance Dashboard</h1>
+        <p class="last-updated" id="lastUpdated">Loading…</p>
+      </div>
+    </div>
+    <div class="header-right">
+      <span class="last-updated">FY 2022–2024</span>
+      <button class="btn-icon" id="themeToggle" title="Toggle theme">🌙</button>
+    </div>
+  </header>
+
+  <!-- Filters -->
+  <div class="filters-bar fade-in fade-in-delay-1">
+    <div class="filter-group">
+      <label>YEAR</label>
+      <select class="filter-select" id="filterYear">
+        <option value="">All Years</option>
+        <option value="2022">2022</option>
+        <option value="2023">2023</option>
+        <option value="2024">2024</option>
+      </select>
+    </div>
+    <div class="filter-sep"></div>
+    <div class="filter-group">
+      <label>REGION</label>
+      <select class="filter-select" id="filterRegion"><option value="">All Regions</option></select>
+    </div>
+    <div class="filter-sep"></div>
+    <div class="filter-group">
+      <label>CATEGORY</label>
+      <select class="filter-select" id="filterCategory"><option value="">All Categories</option></select>
+    </div>
+    <div class="filter-sep"></div>
+    <div class="filter-group">
+      <label>SALESPERSON</label>
+      <select class="filter-select" id="filterSalesperson"><option value="">All Reps</option></select>
+    </div>
+    <div class="filter-sep"></div>
+    <button class="btn-reset" id="btnReset">↺ Reset</button>
+  </div>
+
+  <!-- KPI Cards -->
+  <div class="kpi-grid fade-in fade-in-delay-2" id="kpiGrid"></div>
+
+  <!-- Charts Row 1 -->
+  <div class="charts-row top fade-in fade-in-delay-3">
+    <div class="chart-card">
+      <div class="chart-header">
+        <div>
+          <div class="chart-title">Monthly Sales Trend</div>
+          <div class="chart-subtitle">Revenue over time</div>
+        </div>
+        <span class="chart-badge">LINE</span>
+      </div>
+      <div class="chart-wrap" style="min-height:220px"><canvas id="chartLine"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-header">
+        <div>
+          <div class="chart-title">Sales vs Profit</div>
+          <div class="chart-subtitle">Monthly comparison</div>
+        </div>
+        <span class="chart-badge">BAR</span>
+      </div>
+      <div class="chart-wrap" style="min-height:220px"><canvas id="chartBar"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-header">
+        <div>
+          <div class="chart-title">Sales by Category</div>
+          <div class="chart-subtitle">Revenue split</div>
+        </div>
+        <span class="chart-badge">DONUT</span>
+      </div>
+      <div class="chart-wrap" style="min-height:220px"><canvas id="chartDonut"></canvas></div>
+    </div>
+  </div>
+
+  <!-- Charts Row 2 -->
+  <div class="charts-row bottom fade-in fade-in-delay-4">
+    <div class="chart-card">
+      <div class="chart-header">
+        <div>
+          <div class="chart-title">Top 10 Products by Revenue</div>
+          <div class="chart-subtitle">Ranked by total sales</div>
+        </div>
+        <span class="chart-badge">HBAR</span>
+      </div>
+      <div class="chart-wrap" style="min-height:260px"><canvas id="chartHbar"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-header">
+        <div>
+          <div class="chart-title">Regional Performance</div>
+          <div class="chart-subtitle">Sales & profit by region</div>
+        </div>
+        <span class="chart-badge">GROUP</span>
+      </div>
+      <div class="chart-wrap" style="min-height:260px"><canvas id="chartRegion"></canvas></div>
+    </div>
+  </div>
+
+  <!-- Data Table -->
+  <div class="table-section fade-in fade-in-delay-5">
+    <div class="table-toolbar">
+      <div class="table-title">Transaction Records <span id="recordCount" style="color:var(--text-muted);font-weight:400;font-size:12px"></span></div>
+      <div class="table-controls">
+        <div class="search-wrap">
+          <span class="search-icon">🔍</span>
+          <input type="text" id="tableSearch" placeholder="Search records…">
+        </div>
+        <select class="page-size-select" id="pageSizeSelect">
+          <option value="10">10 rows</option>
+          <option value="20" selected>20 rows</option>
+          <option value="50">50 rows</option>
+          <option value="100">100 rows</option>
+        </select>
+        <button class="btn-export" id="btnExport">⬇ Export CSV</button>
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table id="dataTable">
+        <thead>
+          <tr>
+            <th data-col="id">ID<span class="sort-icon"></span></th>
+            <th data-col="date">Date<span class="sort-icon"></span></th>
+            <th data-col="salesperson">Salesperson<span class="sort-icon"></span></th>
+            <th data-col="region">Region<span class="sort-icon"></span></th>
+            <th data-col="category">Category<span class="sort-icon"></span></th>
+            <th data-col="product">Product<span class="sort-icon"></span></th>
+            <th data-col="quantity">Qty<span class="sort-icon"></span></th>
+            <th data-col="unitPrice">Unit Price<span class="sort-icon"></span></th>
+            <th data-col="sales">Sales<span class="sort-icon"></span></th>
+            <th data-col="profit">Profit<span class="sort-icon"></span></th>
+            <th data-col="margin">Margin<span class="sort-icon"></span></th>
+            <th data-col="status">Status<span class="sort-icon"></span></th>
+          </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+    </div>
+    <div class="pagination">
+      <div class="page-info" id="pageInfo"></div>
+      <div class="page-controls" id="pageControls"></div>
+    </div>
+  </div>
+
+</div><!-- /wrapper -->
+
+<script>
+// ========================
+// DATA GENERATION
+// ========================
+const REGIONS = ['North America','Europe','Asia Pacific','Latin America','Middle East & Africa'];
+const CATEGORIES = ['Electronics','Software','Hardware','Services','Accessories','Cloud Solutions'];
+const PRODUCTS = {
+  'Electronics':['4K Monitor Pro','Laptop Elite X','ThinkPad UltraSlim','Gaming Headset Z','Webcam HD 4K','Smart Keyboard MX','Wireless Mouse Pro','USB-C Hub 10-in-1','Portable SSD 2TB','Noise Cancelling Buds'],
+  'Software':['CRM Suite Enterprise','Analytics Pro 360','Cyber Shield AV','Project Hub Plus','BI Dashboard Pro','Dev IDE Ultimate','ERP Connect 2024','HR Management Suite','Finance Tracker Pro','Cloud Sync Premium'],
+  'Hardware':['Server Rack Pro','NAS Storage 48TB','Switch 48-Port GB','Firewall Shield X','UPS 3000VA','Rack Cabinet 42U','KVM Switch 8-Port','Power Strip Pro','Patch Panel Cat6A','Fiber Optic Kit'],
+  'Services':['Implementation Pro','Training Bundle','Support Gold Plan','Consulting Day Rate','Managed IT Services','Security Audit','Cloud Migration','Data Recovery','SLA Premium','Onsite Support'],
+  'Accessories':['Laptop Stand Alu','Cable Management Kit','Desk Organizer Pro','Monitor Riser Duo','Docking Station V3','Ergonomic Wrist Rest','Screen Cleaner Kit','Anti-Glare Filter','Cable Lock Pro','Backpack Premium'],
+  'Cloud Solutions':['Azure Enterprise','AWS Business','GCP Analytics','CDN Global Pro','VPN Enterprise','Backup Cloud 10TB','Container Platform','Serverless Starter','AI API Suite','Data Warehouse']
+};
+const SALESPERSONS = ['Alex Thompson','Jordan Kim','Morgan Chen','Riley Patel','Casey Brown','Drew Wilson','Avery Martinez','Sam Johnson','Taylor Davis','Chris Lee','Jamie Williams','Pat Anderson','Robin Garcia','Dana Miller','Blake Wilson'];
+const STATUSES = ['Completed','Completed','Completed','Completed','Pending','Cancelled','Refunded'];
+
+function rnd(a,b){return Math.floor(Math.random()*(b-a+1))+a}
+function rndFloat(a,b,d=2){return parseFloat((Math.random()*(b-a)+a).toFixed(d))}
+function pickRnd(arr){return arr[rnd(0,arr.length-1)]}
+
+function generateData(n=250){
+  const rows=[];
+  for(let i=1;i<=n;i++){
+    const year=pickRnd([2022,2022,2023,2023,2023,2024,2024]);
+    const month=rnd(1,12);
+    const day=rnd(1,28);
+    const date=`${year}-${String(month).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+    const category=pickRnd(CATEGORIES);
+    const product=pickRnd(PRODUCTS[category]);
+    const quantity=rnd(1,50);
+    const unitPrice=rndFloat(15,1200);
+    const sales=parseFloat((unitPrice*quantity).toFixed(2));
+    const marginPct=rndFloat(8,52);
+    const profit=parseFloat((sales*marginPct/100).toFixed(2));
+    const region=pickRnd(REGIONS);
+    const salesperson=pickRnd(SALESPERSONS);
+    const status=pickRnd(STATUSES);
+    rows.push({id:`ORD-${String(i).padStart(5,'0')}`,date,year,month,category,product,quantity,unitPrice,sales,profit,margin:marginPct,region,salesperson,status});
+  }
+  return rows;
+}
+
+const RAW_DATA = generateData(250);
+
+// ========================
+// STATE
+// ========================
+let filteredData = [...RAW_DATA];
+let sortCol = 'date', sortDir = -1;
+let currentPage = 1;
+let pageSize = 20;
+let searchQuery = '';
+
+// ========================
+// POPULATE FILTERS
+// ========================
+function populateFilters(){
+  const regions=[...new Set(RAW_DATA.map(r=>r.region))].sort();
+  const cats=[...new Set(RAW_DATA.map(r=>r.category))].sort();
+  const reps=[...new Set(RAW_DATA.map(r=>r.salesperson))].sort();
+  const sel=(id,items)=>{const s=document.getElementById(id);items.forEach(v=>{const o=document.createElement('option');o.value=v;o.textContent=v;s.appendChild(o)})};
+  sel('filterRegion',regions);sel('filterCategory',cats);sel('filterSalesperson',reps);
+}
+
+// ========================
+// FILTERING
+// ========================
+function applyFilters(){
+  const year=document.getElementById('filterYear').value;
+  const region=document.getElementById('filterRegion').value;
+  const cat=document.getElementById('filterCategory').value;
+  const rep=document.getElementById('filterSalesperson').value;
+  filteredData=RAW_DATA.filter(r=>{
+    if(year && r.year!=year) return false;
+    if(region && r.region!==region) return false;
+    if(cat && r.category!==cat) return false;
+    if(rep && r.salesperson!==rep) return false;
+    return true;
+  });
+  searchQuery=document.getElementById('tableSearch').value.toLowerCase();
+  if(searchQuery){
+    filteredData=filteredData.filter(r=>Object.values(r).some(v=>String(v).toLowerCase().includes(searchQuery)));
+  }
+  currentPage=1;
+  renderAll();
+}
+
+// ========================
+// CHARTS
+// ========================
+let charts={};
+const isDark=()=>document.documentElement.getAttribute('data-theme')==='dark';
+
+const CHART_COLORS=['#3b82f6','#8b5cf6','#10b981','#f59e0b','#f43f5e','#06b6d4','#ec4899'];
+const CHART_COLORS_ALPHA=a=>CHART_COLORS.map(c=>c+Math.round(a*255).toString(16).padStart(2,'0'));
+
+function chartDefaults(){
+  const dark=isDark();
+  return{
+    grid:{color:dark?'rgba(255,255,255,0.05)':'rgba(0,0,0,0.06)'},
+    tick:{color:dark?'#4a6080':'#8ba3cc',font:{family:'Inter',size:10}},
+    legend:{color:dark?'#8ba3cc':'#3a5280',font:{family:'Inter',size:11}},
+  };
+}
+
+function destroyChart(id){if(charts[id]){charts[id].destroy();delete charts[id]}}
+
+function buildLineChart(){
+  destroyChart('line');
+  const months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const byMonth={};
+  filteredData.forEach(r=>{
+    const k=`${r.year}-${String(r.month).padStart(2,'0')}`;
+    byMonth[k]=(byMonth[k]||0)+r.sales;
+  });
+  const sorted=Object.keys(byMonth).sort();
+  const labels=sorted.map(k=>{const[y,m]=k.split('-');return `${months[parseInt(m)-1]} ${y.slice(2)}`});
+  const values=sorted.map(k=>byMonth[k]);
+  const d=chartDefaults();
+  const ctx=document.getElementById('chartLine').getContext('2d');
+  const grad=ctx.createLinearGradient(0,0,0,220);
+  grad.addColorStop(0,'rgba(59,130,246,0.3)');
+  grad.addColorStop(1,'rgba(59,130,246,0)');
+  charts.line=new Chart(ctx,{
+    type:'line',
+    data:{
+      labels,
+      datasets:[{
+        label:'Revenue',data:values,
+        borderColor:'#3b82f6',backgroundColor:grad,
+        borderWidth:2,pointRadius:3,pointHoverRadius:5,
+        pointBackgroundColor:'#3b82f6',tension:.35,fill:true
+      }]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>' $'+c.parsed.y.toLocaleString()}}},
+      scales:{
+        x:{grid:{color:d.grid.color},ticks:{...d.tick,maxRotation:45}},
+        y:{grid:{color:d.grid.color},ticks:{...d.tick,callback:v=>'$'+v.toLocaleString()}}
+      }
+    }
+  });
+}
+
+function buildBarChart(){
+  destroyChart('bar');
+  const months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const byMonth={};
+  filteredData.forEach(r=>{
+    const k=`${r.year}-${String(r.month).padStart(2,'0')}`;
+    if(!byMonth[k])byMonth[k]={sales:0,profit:0};
+    byMonth[k].sales+=r.sales;byMonth[k].profit+=r.profit;
+  });
+  const sorted=Object.keys(byMonth).sort().slice(-12);
+  const labels=sorted.map(k=>{const[y,m]=k.split('-');return `${months[parseInt(m)-1]}'${y.slice(2)}`});
+  const d=chartDefaults();
+  const ctx=document.getElementById('chartBar').getContext('2d');
+  charts.bar=new Chart(ctx,{
+    type:'bar',
+    data:{
+      labels,
+      datasets:[
+        {label:'Sales',data:sorted.map(k=>byMonth[k].sales),backgroundColor:'rgba(59,130,246,0.7)',borderRadius:4},
+        {label:'Profit',data:sorted.map(k=>byMonth[k].profit),backgroundColor:'rgba(16,185,129,0.7)',borderRadius:4}
+      ]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{labels:{color:d.legend.color,...d.legend}}},
+      scales:{
+        x:{grid:{color:d.grid.color},ticks:{...d.tick,maxRotation:45}},
+        y:{grid:{color:d.grid.color},ticks:{...d.tick,callback:v=>'$'+v.toLocaleString()}}
+      }
+    }
+  });
+}
+
+function buildDonutChart(){
+  destroyChart('donut');
+  const byCat={};
+  filteredData.forEach(r=>{byCat[r.category]=(byCat[r.category]||0)+r.sales});
+  const labels=Object.keys(byCat).sort((a,b)=>byCat[b]-byCat[a]);
+  const values=labels.map(l=>byCat[l]);
+  const d=chartDefaults();
+  const ctx=document.getElementById('chartDonut').getContext('2d');
+  charts.donut=new Chart(ctx,{
+    type:'doughnut',
+    data:{labels,datasets:[{data:values,backgroundColor:CHART_COLORS,borderWidth:0,hoverOffset:6}]},
+    options:{
+      responsive:true,maintainAspectRatio:false,cutout:'68%',
+      plugins:{
+        legend:{position:'right',labels:{color:d.legend.color,font:d.legend.font,padding:10,boxWidth:10,boxHeight:10}},
+        tooltip:{callbacks:{label:c=>` ${c.label}: $${c.parsed.toLocaleString()}`}}
+      }
+    }
+  });
+}
+
+function buildHbarChart(){
+  destroyChart('hbar');
+  const byProd={};
+  filteredData.forEach(r=>{byProd[r.product]=(byProd[r.product]||0)+r.sales});
+  const sorted=Object.entries(byProd).sort((a,b)=>b[1]-a[1]).slice(0,10);
+  const labels=sorted.map(([l])=>l.length>22?l.slice(0,20)+'…':l);
+  const values=sorted.map(([,v])=>v);
+  const d=chartDefaults();
+  const ctx=document.getElementById('chartHbar').getContext('2d');
+  charts.hbar=new Chart(ctx,{
+    type:'bar',
+    data:{labels,datasets:[{data:values,backgroundColor:CHART_COLORS.concat(CHART_COLORS).slice(0,10).map(c=>c+'cc'),borderRadius:4}]},
+    options:{
+      indexAxis:'y',responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>` $${c.parsed.x.toLocaleString()}`}}},
+      scales:{
+        x:{grid:{color:d.grid.color},ticks:{...d.tick,callback:v=>'$'+v.toLocaleString()}},
+        y:{grid:{display:false},ticks:{...d.tick,font:{family:'Inter',size:10}}}
+      }
+    }
+  });
+}
+
+function buildRegionChart(){
+  destroyChart('region');
+  const byReg={};
+  filteredData.forEach(r=>{
+    if(!byReg[r.region])byReg[r.region]={sales:0,profit:0};
+    byReg[r.region].sales+=r.sales;byReg[r.region].profit+=r.profit;
+  });
+  const labels=Object.keys(byReg).sort();
+  const d=chartDefaults();
+  const ctx=document.getElementById('chartRegion').getContext('2d');
+  charts.region=new Chart(ctx,{
+    type:'bar',
+    data:{
+      labels,
+      datasets:[
+        {label:'Sales',data:labels.map(l=>byReg[l].sales),backgroundColor:'rgba(59,130,246,0.75)',borderRadius:4},
+        {label:'Profit',data:labels.map(l=>byReg[l].profit),backgroundColor:'rgba(139,92,246,0.75)',borderRadius:4}
+      ]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{labels:{color:d.legend.color,...d.legend}}},
+      scales:{
+        x:{grid:{display:false},ticks:{...d.tick,maxRotation:30}},
+        y:{grid:{color:d.grid.color},ticks:{...d.tick,callback:v=>'$'+v.toLocaleString()}}
+      }
+    }
+  });
+}
+
+// ========================
+// KPI CARDS
+// ========================
+const KPI_CONFIG=[
+  {key:'sales',label:'Total Sales',fmt:v=>'$'+v.toLocaleString(undefined,{maximumFractionDigits:0}),icon:'💰',color:'#3b82f6',bg:'rgba(59,130,246,0.12)'},
+  {key:'profit',label:'Total Profit',fmt:v=>'$'+v.toLocaleString(undefined,{maximumFractionDigits:0}),icon:'📈',color:'#10b981',bg:'rgba(16,185,129,0.12)'},
+  {key:'orders',label:'Total Orders',fmt:v=>v.toLocaleString(),icon:'🛒',color:'#8b5cf6',bg:'rgba(139,92,246,0.12)'},
+  {key:'margin',label:'Profit Margin',fmt:v=>v.toFixed(1)+'%',icon:'🎯',color:'#f59e0b',bg:'rgba(245,158,11,0.12)'},
+  {key:'aov',label:'Avg Order Value',fmt:v=>'$'+v.toLocaleString(undefined,{maximumFractionDigits:0}),icon:'⚡',color:'#06b6d4',bg:'rgba(6,182,212,0.12)'},
+  {key:'qty',label:'Qty Sold',fmt:v=>v.toLocaleString(),icon:'📦',color:'#f43f5e',bg:'rgba(244,63,94,0.12)'},
+];
+
+function computeKPIs(data){
+  const totalSales=data.reduce((s,r)=>s+r.sales,0);
+  const totalProfit=data.reduce((s,r)=>s+r.profit,0);
+  const totalOrders=data.length;
+  const margin=totalSales>0?totalProfit/totalSales*100:0;
+  const aov=totalOrders>0?totalSales/totalOrders:0;
+  const qty=data.reduce((s,r)=>s+r.quantity,0);
+  return{sales:totalSales,profit:totalProfit,orders:totalOrders,margin,aov,qty};
+}
+
+function computeKPIsForYear(data,year){
+  const sub=data.filter(r=>r.year===year);
+  return computeKPIs(sub);
+}
+
+function renderKPIs(){
+  const kpis=computeKPIs(filteredData);
+  // Compare to previous period using raw data with year - 1
+  const filterYear=parseInt(document.getElementById('filterYear').value)||null;
+  let prevKpis=null;
+  if(filterYear){
+    const prevData=RAW_DATA.filter(r=>r.year===filterYear-1);
+    prevKpis=computeKPIs(prevData);
+  }
+  const grid=document.getElementById('kpiGrid');
+  grid.innerHTML='';
+  KPI_CONFIG.forEach(cfg=>{
+    const val=kpis[cfg.key];
+    let deltaHtml='';
+    if(prevKpis){
+      const prev=prevKpis[cfg.key];
+      if(prev>0){
+        const pct=((val-prev)/prev*100).toFixed(1);
+        const cls=pct>=0?'up':'down';
+        const arrow=pct>=0?'▲':'▼';
+        deltaHtml=`<div class="kpi-delta ${cls}">${arrow} ${Math.abs(pct)}% <span>vs prev year</span></div>`;
+      }
+    } else {
+      // Compute vs all data
+      const allKpis=computeKPIs(RAW_DATA);
+      const prev=allKpis[cfg.key];
+      if(prev>0&&filteredData.length<RAW_DATA.length){
+        const pct=((val-prev)/prev*100).toFixed(1);
+        const cls=pct>=0?'up':'down';
+        const arrow=pct>=0?'▲':'▼';
+        deltaHtml=`<div class="kpi-delta ${cls}">${arrow} ${Math.abs(pct)}% <span>vs all</span></div>`;
+      }
+    }
+    const card=document.createElement('div');
+    card.className='kpi-card';
+    card.style.setProperty('--kpi-color',cfg.color);
+    card.style.setProperty('--kpi-bg',cfg.bg);
+    card.innerHTML=`
+      <div class="kpi-header">
+        <span class="kpi-label">${cfg.label}</span>
+        <span class="kpi-icon">${cfg.icon}</span>
+      </div>
+      <div class="kpi-value">${cfg.fmt(val)}</div>
+      ${deltaHtml}
+    `;
+    grid.appendChild(card);
+  });
+}
+
+// ========================
+// TABLE
+// ========================
+let sortedTableData=[];
+
+function getSortedData(){
+  let data=[...filteredData];
+  data.sort((a,b)=>{
+    let av=a[sortCol],bv=b[sortCol];
+    if(typeof av==='string')return sortDir*av.localeCompare(bv);
+    return sortDir*(av-bv);
+  });
+  return data;
+}
+
+function renderTable(){
+  sortedTableData=getSortedData();
+  const start=(currentPage-1)*pageSize;
+  const pageData=sortedTableData.slice(start,start+pageSize);
+  document.getElementById('recordCount').textContent=`— ${sortedTableData.length.toLocaleString()} records`;
+  const tbody=document.getElementById('tableBody');
+  tbody.innerHTML='';
+  if(pageData.length===0){
+    tbody.innerHTML=`<tr><td colspan="12" style="text-align:center;padding:30px;color:var(--text-muted)">No records match the current filters.</td></tr>`;
+  }
+  pageData.forEach(r=>{
+    const mBadge=r.margin>=35?'badge-green':r.margin>=20?'badge-amber':'badge-red';
+    const sBadge=r.status==='Completed'?'badge-green':r.status==='Pending'?'badge-amber':r.status==='Cancelled'?'badge-red':'badge-purple';
+    const tr=document.createElement('tr');
+    tr.innerHTML=`
+      <td class="mono">${r.id}</td>
+      <td>${r.date}</td>
+      <td class="bold">${r.salesperson}</td>
+      <td>${r.region}</td>
+      <td><span class="badge badge-blue">${r.category}</span></td>
+      <td>${r.product}</td>
+      <td style="text-align:center">${r.quantity}</td>
+      <td>$${r.unitPrice.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})}</td>
+      <td class="bold">$${r.sales.toLocaleString(undefined,{maximumFractionDigits:0})}</td>
+      <td class="positive">$${r.profit.toLocaleString(undefined,{maximumFractionDigits:0})}</td>
+      <td><span class="badge ${mBadge}">${r.margin.toFixed(1)}%</span></td>
+      <td><span class="badge ${sBadge}">${r.status}</span></td>
+    `;
+    tbody.appendChild(tr);
+  });
+  renderPagination();
+}
+
+function renderPagination(){
+  const total=sortedTableData.length;
+  const pages=Math.max(1,Math.ceil(total/pageSize));
+  const start=(currentPage-1)*pageSize+1;
+  const end=Math.min(currentPage*pageSize,total);
+  document.getElementById('pageInfo').textContent=total===0?'No records':`Showing ${start}–${end} of ${total.toLocaleString()}`;
+  const ctrl=document.getElementById('pageControls');
+  ctrl.innerHTML='';
+  const addBtn=(label,page,active=false,disabled=false)=>{
+    const b=document.createElement('button');
+    b.className='page-btn'+(active?' active':'');
+    b.disabled=disabled;
+    b.textContent=label;
+    b.addEventListener('click',()=>{currentPage=page;renderTable()});
+    ctrl.appendChild(b);
+  };
+  addBtn('‹',currentPage-1,false,currentPage===1);
+  const range=[];
+  if(pages<=7){for(let i=1;i<=pages;i++)range.push(i);}
+  else{
+    range.push(1);
+    if(currentPage>3)range.push('…');
+    for(let i=Math.max(2,currentPage-1);i<=Math.min(pages-1,currentPage+1);i++)range.push(i);
+    if(currentPage<pages-2)range.push('…');
+    range.push(pages);
+  }
+  range.forEach(p=>{
+    if(p==='…'){const s=document.createElement('span');s.textContent='…';s.style.cssText='color:var(--text-muted);padding:0 4px;font-size:12px';ctrl.appendChild(s);}
+    else addBtn(p,p,p===currentPage);
+  });
+  addBtn('›',currentPage+1,false,currentPage===pages);
+}
+
+// ========================
+// SORT
+// ========================
+document.querySelectorAll('thead th[data-col]').forEach(th=>{
+  th.addEventListener('click',()=>{
+    const col=th.getAttribute('data-col');
+    if(sortCol===col)sortDir*=-1;
+    else{sortCol=col;sortDir=-1;}
+    document.querySelectorAll('thead th').forEach(t=>t.classList.remove('asc','desc'));
+    th.classList.add(sortDir===1?'asc':'desc');
+    renderTable();
+  });
+});
+
+// ========================
+// EXPORT CSV
+// ========================
+document.getElementById('btnExport').addEventListener('click',()=>{
+  const data=getSortedData();
+  const cols=['id','date','salesperson','region','category','product','quantity','unitPrice','sales','profit','margin','status'];
+  const header=cols.join(',');
+  const rows=data.map(r=>cols.map(c=>{
+    const v=r[c];
+    if(typeof v==='string'&&v.includes(','))return `"${v}"`;
+    return v;
+  }).join(','));
+  const csv=[header,...rows].join('\n');
+  const blob=new Blob([csv],{type:'text/csv'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');a.href=url;a.download='sales_data.csv';a.click();
+  URL.revokeObjectURL(url);
+});
+
+// ========================
+// THEME TOGGLE
+// ========================
+const toggleBtn=document.getElementById('themeToggle');
+toggleBtn.addEventListener('click',()=>{
+  const current=document.documentElement.getAttribute('data-theme');
+  const next=current==='dark'?'light':'dark';
+  document.documentElement.setAttribute('data-theme',next);
+  toggleBtn.textContent=next==='dark'?'🌙':'☀️';
+  // Rebuild charts to pick up new colors
+  buildAllCharts();
+});
+
+// ========================
+// RENDER ALL
+// ========================
+function buildAllCharts(){
+  buildLineChart();
+  buildBarChart();
+  buildDonutChart();
+  buildHbarChart();
+  buildRegionChart();
+}
+
+function renderAll(){
+  renderKPIs();
+  buildAllCharts();
+  renderTable();
+}
+
+// ========================
+// INIT
+// ========================
+function init(){
+  populateFilters();
+
+  // Event listeners
+  ['filterYear','filterRegion','filterCategory','filterSalesperson'].forEach(id=>{
+    document.getElementById(id).addEventListener('change',applyFilters);
+  });
+  document.getElementById('btnReset').addEventListener('click',()=>{
+    ['filterYear','filterRegion','filterCategory','filterSalesperson'].forEach(id=>document.getElementById(id).value='');
+    document.getElementById('tableSearch').value='';
+    filteredData=[...RAW_DATA];
+    currentPage=1;
+    renderAll();
+  });
+  document.getElementById('tableSearch').addEventListener('input',applyFilters);
+  document.getElementById('pageSizeSelect').addEventListener('change',e=>{pageSize=parseInt(e.target.value);currentPage=1;renderTable()});
+
+  // Set last updated
+  const now=new Date();
+  document.getElementById('lastUpdated').textContent=`Updated ${now.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}`;
+
+  // Render
+  filteredData=[...RAW_DATA];
+  renderAll();
+
+  // Hide loader
+  setTimeout(()=>{
+    document.getElementById('loading').classList.add('hidden');
+    document.getElementById('app').style.display='';
+  },600);
+}
+
+// Wait for Chart.js to load
+if(typeof Chart!=='undefined'){
+  init();
+}else{
+  window.addEventListener('load',init);
+}
+</script>
+</body>
+</html>
