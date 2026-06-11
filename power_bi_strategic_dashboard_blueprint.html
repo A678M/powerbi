@@ -1,0 +1,1091 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans);background:transparent}
+:root{--navy:#0B1F3A;--navy2:#122849;--accent:#1E6FD9;--accent2:#2E8BF7;--gold:#F5A623;--teal:#00B4B4;--green:#27AE60;--red:#E74C3C;--muted:#6B7A8D;--border:rgba(30,111,217,0.18);--card:#0F2540;--card2:#162E4D;--text:#E8F0FE;--text2:#A8BDD0;--white:#fff}
+.shell{background:var(--navy);color:var(--text);border-radius:var(--border-radius-lg);overflow:hidden;min-height:700px}
+.topbar{background:var(--navy2);border-bottom:1px solid var(--border);padding:10px 20px;display:flex;align-items:center;justify-content:space-between}
+.topbar-logo{font-size:13px;font-weight:500;color:var(--accent2);letter-spacing:.04em}
+.topbar-meta{font-size:11px;color:var(--text2)}
+.topbar-badge{background:rgba(39,174,96,.15);color:#6EE89A;font-size:10px;padding:2px 8px;border-radius:20px;border:0.5px solid rgba(39,174,96,.3)}
+.layout{display:flex}
+.sidebar{width:170px;flex-shrink:0;background:var(--navy2);border-right:1px solid var(--border);padding:12px 0;min-height:660px}
+.nav-section{font-size:9px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;padding:10px 14px 4px}
+.nav-item{display:flex;align-items:center;gap:7px;padding:8px 14px;font-size:11.5px;color:var(--text2);cursor:pointer;border-left:2px solid transparent;transition:all .15s}
+.nav-item:hover{background:rgba(30,111,217,.1);color:var(--text)}
+.nav-item.active{background:rgba(30,111,217,.18);color:var(--accent2);border-left-color:var(--accent2);font-weight:500}
+.nav-item i{font-size:14px;flex-shrink:0}
+.content{flex:1;overflow:auto;padding:16px}
+.page{display:none}.page.active{display:block}
+.section-title{font-size:11px;color:var(--text2);letter-spacing:.06em;text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.section-title::after{content:'';flex:1;height:0.5px;background:var(--border)}
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px}
+.kpi-card{background:var(--card);border:0.5px solid var(--border);border-radius:var(--border-radius-md);padding:12px}
+.kpi-label{font-size:10px;color:var(--text2);margin-bottom:4px}
+.kpi-value{font-size:22px;font-weight:500;color:var(--white);line-height:1}
+.kpi-sub{font-size:10px;margin-top:3px}
+.up{color:#6EE89A}.down{color:#FF7B7B}.neutral{color:var(--gold)}
+.chart-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.chart-card{background:var(--card);border:0.5px solid var(--border);border-radius:var(--border-radius-md);padding:12px}
+.chart-card.full{grid-column:1/-1}
+.chart-card.thirds{grid-template-columns:repeat(3,1fr)}
+.chart-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.chart-head-title{font-size:11px;font-weight:500;color:var(--text)}
+.chip{font-size:9px;padding:2px 7px;border-radius:10px;background:rgba(30,111,217,.15);color:var(--accent2);border:0.5px solid var(--border)}
+.chip.gold{background:rgba(245,166,35,.15);color:var(--gold);border-color:rgba(245,166,35,.3)}
+.chip.green{background:rgba(39,174,96,.15);color:#6EE89A;border-color:rgba(39,174,96,.3)}
+.chip.red{background:rgba(231,76,60,.15);color:#FF7B7B;border-color:rgba(231,76,60,.3)}
+.filter-bar{display:flex;gap:6px;margin-bottom:12px;align-items:center}
+.filter-bar select{background:var(--card);border:0.5px solid var(--border);color:var(--text2);font-size:11px;padding:4px 8px;border-radius:var(--border-radius-md);outline:none}
+.filter-bar label{font-size:10px;color:var(--text2)}
+.scorecard-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
+.score-card{background:var(--card);border:0.5px solid var(--border);border-radius:var(--border-radius-md);padding:10px}
+.score-label{font-size:10px;color:var(--text2);margin-bottom:2px}
+.score-val{font-size:17px;font-weight:500;color:var(--white)}
+.score-bar-wrap{background:rgba(255,255,255,.07);border-radius:3px;height:4px;margin-top:5px}
+.score-bar{height:4px;border-radius:3px}
+.table-wrap{background:var(--card);border:0.5px solid var(--border);border-radius:var(--border-radius-md);overflow:hidden;margin-bottom:14px}
+table{width:100%;font-size:11px;border-collapse:collapse}
+th{background:var(--card2);color:var(--text2);font-weight:500;padding:7px 10px;text-align:left;border-bottom:0.5px solid var(--border)}
+td{padding:6px 10px;border-bottom:0.5px solid rgba(30,111,217,.08);color:var(--text)}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:rgba(30,111,217,.06)}
+.alert-card{background:var(--card);border:0.5px solid var(--border);border-radius:var(--border-radius-md);padding:10px 12px;margin-bottom:6px;display:flex;align-items:flex-start;gap:8px}
+.alert-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;margin-top:3px}
+.alert-dot.red{background:#FF7B7B}.alert-dot.gold{background:var(--gold)}.alert-dot.green{background:#6EE89A}
+.alert-text{font-size:11px;color:var(--text2)}
+.alert-text strong{color:var(--text);font-weight:500}
+.treemap{display:grid;grid-template-columns:2fr 1fr 1fr;grid-template-rows:1fr 1fr;gap:3px;height:130px}
+.treemap-cell{border-radius:3px;display:flex;align-items:flex-end;padding:6px;font-size:9px;font-weight:500}
+.badge{display:inline-block;font-size:9px;padding:1px 6px;border-radius:8px}
+.mini-legend{display:flex;gap:10px;flex-wrap:wrap;margin-top:6px}
+.legend-item{display:flex;align-items:center;gap:4px;font-size:10px;color:var(--text2)}
+.legend-dot{width:8px;height:8px;border-radius:2px;flex-shrink:0}
+.dax-block{background:#0a1929;border:0.5px solid var(--border);border-radius:var(--border-radius-md);padding:12px;font-family:var(--font-mono);font-size:10px;color:#A8D8FF;line-height:1.7;overflow-x:auto;margin-bottom:10px}
+.dax-comment{color:#6A8A6A}.dax-keyword{color:#C792EA}.dax-func{color:#82AAFF}.dax-str{color:#C3E88D}
+.code-section{margin-bottom:16px}
+.code-label{font-size:10px;color:var(--gold);margin-bottom:5px;font-weight:500}
+.mcode-block{background:#0a1929;border:0.5px solid var(--border);border-radius:var(--border-radius-md);padding:12px;font-family:var(--font-mono);font-size:10px;color:#89DDFF;line-height:1.7;overflow-x:auto;margin-bottom:10px}
+.mcode-kw{color:#C792EA}.mcode-fn{color:#FFCB6B}.mcode-str{color:#C3E88D}.mcode-cmt{color:#546E7A}
+.schema-wrap{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.schema-table{background:var(--card);border:0.5px solid var(--accent);border-radius:var(--border-radius-md);min-width:130px;overflow:hidden}
+.schema-thead{background:var(--accent);padding:5px 8px;font-size:10px;font-weight:500;color:#fff}
+.schema-thead.fact{background:#1E6FD9}.schema-thead.dim{background:#0F6E56}
+.schema-row{padding:4px 8px;font-size:10px;color:var(--text2);border-bottom:0.5px solid var(--border);display:flex;align-items:center;gap:4px}
+.schema-row:last-child{border-bottom:none}
+.pk{color:var(--gold);font-size:8px;border:0.5px solid var(--gold);padding:0 3px;border-radius:2px}
+.fk{color:#89DDFF;font-size:8px;border:0.5px solid #89DDFF;padding:0 3px;border-radius:2px}
+.impl-step{background:var(--card);border:0.5px solid var(--border);border-left:2px solid var(--accent);border-radius:var(--border-radius-md);padding:10px 12px;margin-bottom:8px}
+.impl-step-title{font-size:11px;font-weight:500;color:var(--accent2);margin-bottom:3px}
+.impl-step-desc{font-size:10px;color:var(--text2);line-height:1.6}
+.gauge-wrap{display:flex;justify-content:center;align-items:center;flex-direction:column;padding:8px 0}
+.heat-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px}
+.heat-cell{height:18px;border-radius:2px;font-size:8px;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.6)}
+.segment-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.seg-card{background:var(--card2);border:0.5px solid var(--border);border-radius:var(--border-radius-md);padding:10px}
+.seg-title{font-size:10px;font-weight:500;color:var(--text);margin-bottom:4px}
+.seg-val{font-size:14px;font-weight:500}
+.nps-wrap{display:flex;gap:3px;margin:8px 0}
+.nps-bar{height:16px;border-radius:2px;display:flex;align-items:center;justify-content:center;font-size:9px;color:#fff;font-weight:500}
+.op-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.op-card{background:var(--card);border:0.5px solid var(--border);border-radius:var(--border-radius-md);padding:10px}
+.json-block{background:#0a1929;border:0.5px solid var(--border);border-radius:var(--border-radius-md);padding:12px;font-family:var(--font-mono);font-size:10px;color:#89DDFF;line-height:1.7;overflow-x:auto;margin-bottom:10px;max-height:260px;overflow-y:auto}
+.json-key{color:#C792EA}.json-str{color:#C3E88D}.json-num{color:#F78C6C}.json-bool{color:#FF5370}
+.waterfall-bars{display:flex;align-items:flex-end;gap:4px;height:110px;padding-top:10px}
+.wf-col{display:flex;flex-direction:column;align-items:center;flex:1;gap:2px}
+.wf-bar{width:100%;border-radius:2px 2px 0 0;position:relative}
+.wf-label{font-size:8px;color:var(--text2);margin-top:2px;text-align:center;white-space:nowrap}
+.wf-val{font-size:8px;font-weight:500;text-align:center}
+.scatter-wrap{position:relative;height:120px;margin:4px 0}
+.swot-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:14px}
+.swot-card{border-radius:var(--border-radius-md);padding:10px}
+.swot-card.s{background:rgba(39,174,96,.1);border:0.5px solid rgba(39,174,96,.3)}
+.swot-card.w{background:rgba(231,76,60,.1);border:0.5px solid rgba(231,76,60,.3)}
+.swot-card.o{background:rgba(30,111,217,.1);border:0.5px solid rgba(30,111,217,.3)}
+.swot-card.t{background:rgba(245,166,35,.1);border:0.5px solid rgba(245,166,35,.3)}
+.swot-title{font-size:10px;font-weight:500;margin-bottom:5px}
+.swot-title.s{color:#6EE89A}.swot-title.w{color:#FF7B7B}.swot-title.o{color:var(--accent2)}.swot-title.t{color:var(--gold)}
+.swot-item{font-size:10px;color:var(--text2);padding:2px 0;display:flex;gap:5px;align-items:flex-start}
+.dept-rank{display:flex;flex-direction:column;gap:5px}
+.dept-row{display:flex;align-items:center;gap:8px;background:var(--card);border:0.5px solid var(--border);border-radius:var(--border-radius-md);padding:7px 10px}
+.dept-num{font-size:11px;font-weight:500;color:var(--accent2);width:16px;flex-shrink:0}
+.dept-name{font-size:11px;color:var(--text);flex:1}
+.dept-score{font-size:11px;font-weight:500}
+.dept-bar-wrap{flex:1;background:rgba(255,255,255,.07);border-radius:3px;height:4px}
+.dept-bar{height:4px;border-radius:3px;background:var(--accent)}
+</style>
+
+<h2 class="sr-only">Strategic Business Intelligence Dashboard Blueprint for Power BI — 6-page interactive executive dashboard with DAX, M Code, schema, and implementation guide</h2>
+
+<div class="shell">
+  <div class="topbar">
+    <div class="topbar-logo"><i class="ti ti-chart-dots-3" aria-hidden="true" style="font-size:14px;margin-right:5px"></i>Strategic BI Dashboard · Power BI Blueprint</div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <div class="topbar-meta">FY 2024 · Last refresh: Jun 11, 2026 09:00 UTC</div>
+      <div class="topbar-badge">● Live</div>
+    </div>
+  </div>
+
+  <div class="layout">
+    <div class="sidebar">
+      <div class="nav-section">Dashboard Pages</div>
+      <div class="nav-item active" onclick="showPage('exec',this)"><i class="ti ti-dashboard" aria-hidden="true"></i>Executive Overview</div>
+      <div class="nav-item" onclick="showPage('fin',this)"><i class="ti ti-chart-line" aria-hidden="true"></i>Financial Performance</div>
+      <div class="nav-item" onclick="showPage('sales',this)"><i class="ti ti-trending-up" aria-hidden="true"></i>Sales & Growth</div>
+      <div class="nav-item" onclick="showPage('cust',this)"><i class="ti ti-users" aria-hidden="true"></i>Customer Intelligence</div>
+      <div class="nav-item" onclick="showPage('ops',this)"><i class="ti ti-settings-2" aria-hidden="true"></i>Operational Intel</div>
+      <div class="nav-item" onclick="showPage('strat',this)"><i class="ti ti-target" aria-hidden="true"></i>Strategic Insights</div>
+      <div class="nav-section" style="margin-top:10px">Technical</div>
+      <div class="nav-item" onclick="showPage('schema',this)"><i class="ti ti-database" aria-hidden="true"></i>Data Model</div>
+      <div class="nav-item" onclick="showPage('dax',this)"><i class="ti ti-code" aria-hidden="true"></i>DAX Measures</div>
+      <div class="nav-item" onclick="showPage('mcode',this)"><i class="ti ti-terminal-2" aria-hidden="true"></i>Power Query M</div>
+      <div class="nav-item" onclick="showPage('theme',this)"><i class="ti ti-palette" aria-hidden="true"></i>JSON Theme</div>
+      <div class="nav-item" onclick="showPage('impl',this)"><i class="ti ti-list-check" aria-hidden="true"></i>Implementation</div>
+    </div>
+
+    <div class="content">
+
+      <!-- PAGE: EXECUTIVE OVERVIEW -->
+      <div class="page active" id="page-exec">
+        <div class="filter-bar">
+          <label>Period:</label>
+          <select><option>FY 2024</option><option>FY 2023</option><option>Q4 2024</option></select>
+          <label>Region:</label>
+          <select><option>All Regions</option><option>North America</option><option>EMEA</option><option>APAC</option></select>
+          <label>Segment:</label>
+          <select><option>All</option><option>Enterprise</option><option>Mid-Market</option><option>SMB</option></select>
+        </div>
+
+        <div class="section-title"><i class="ti ti-chart-bar" aria-hidden="true" style="font-size:11px"></i>Key performance indicators</div>
+        <div class="kpi-grid">
+          <div class="kpi-card">
+            <div class="kpi-label">Total Revenue</div>
+            <div class="kpi-value">$284.7M</div>
+            <div class="kpi-sub up"><i class="ti ti-arrow-up-right" aria-hidden="true"></i> +18.4% vs LY</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Net Profit</div>
+            <div class="kpi-value">$61.2M</div>
+            <div class="kpi-sub up"><i class="ti ti-arrow-up-right" aria-hidden="true"></i> +22.1% vs LY</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Profit Margin %</div>
+            <div class="kpi-value">21.5%</div>
+            <div class="kpi-sub up"><i class="ti ti-arrow-up-right" aria-hidden="true"></i> +2.8pp vs LY</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Operating Cost</div>
+            <div class="kpi-value">$183.4M</div>
+            <div class="kpi-sub neutral"><i class="ti ti-minus" aria-hidden="true"></i> +3.1% vs LY</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">EBITDA</div>
+            <div class="kpi-value">$79.3M</div>
+            <div class="kpi-sub up"><i class="ti ti-arrow-up-right" aria-hidden="true"></i> +19.7% vs LY</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Customer Growth</div>
+            <div class="kpi-value">+12.4K</div>
+            <div class="kpi-sub up"><i class="ti ti-arrow-up-right" aria-hidden="true"></i> +14.2% vs LY</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Market Share %</div>
+            <div class="kpi-value">23.8%</div>
+            <div class="kpi-sub up"><i class="ti ti-arrow-up-right" aria-hidden="true"></i> +2.1pp vs LY</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Strategic Perf. Index</div>
+            <div class="kpi-value" style="color:var(--gold)">82.4</div>
+            <div class="kpi-sub neutral"><i class="ti ti-arrow-up-right" aria-hidden="true"></i> +4.3 pts</div>
+          </div>
+        </div>
+
+        <div class="section-title"><i class="ti ti-chart-area-line" aria-hidden="true" style="font-size:11px"></i>Revenue & profit trends</div>
+        <div class="chart-row">
+          <div class="chart-card">
+            <div class="chart-head"><span class="chart-head-title">Monthly Revenue vs Profit</span><span class="chip">Line Chart</span></div>
+            <div class="mini-legend" style="margin-bottom:8px">
+              <span class="legend-item"><span class="legend-dot" style="background:#2E8BF7"></span>Revenue</span>
+              <span class="legend-item"><span class="legend-dot" style="background:#6EE89A"></span>Profit</span>
+            </div>
+            <div style="position:relative;height:140px"><canvas id="revProfChart" role="img" aria-label="Monthly revenue and profit line chart Jan to Dec 2024">Revenue peaked at $28M in November; profit trended upward throughout the year.</canvas></div>
+          </div>
+          <div class="chart-card">
+            <div class="chart-head"><span class="chart-head-title">Revenue by Region</span><span class="chip">Donut</span></div>
+            <div class="mini-legend" style="margin-bottom:8px">
+              <span class="legend-item"><span class="legend-dot" style="background:#2E8BF7"></span>NA 41%</span>
+              <span class="legend-item"><span class="legend-dot" style="background:#00B4B4"></span>EMEA 31%</span>
+              <span class="legend-item"><span class="legend-dot" style="background:#F5A623"></span>APAC 18%</span>
+              <span class="legend-item"><span class="legend-dot" style="background:#C792EA"></span>LATAM 10%</span>
+            </div>
+            <div style="position:relative;height:140px"><canvas id="regionChart" role="img" aria-label="Donut chart of revenue by region: North America 41%, EMEA 31%, APAC 18%, LATAM 10%">North America dominates at 41% of total revenue.</canvas></div>
+          </div>
+        </div>
+
+        <div class="section-title"><i class="ti ti-alert-triangle" aria-hidden="true" style="font-size:11px"></i>Executive alerts</div>
+        <div class="alert-card"><div class="alert-dot red"></div><div class="alert-text"><strong>APAC churn spike</strong> — Customer churn in APAC region increased to 8.3% this month, exceeding the 6% threshold. Immediate review recommended.</div></div>
+        <div class="alert-card"><div class="alert-dot gold"></div><div class="alert-text"><strong>Budget variance warning</strong> — Q4 operating expenses are 7.2% above budget. Marketing overspend is the primary driver ($3.1M).</div></div>
+        <div class="alert-card"><div class="alert-dot green"></div><div class="alert-text"><strong>Revenue milestone</strong> — Enterprise segment surpassed $100M revenue for the first time in company history. YTD +24.3%.</div></div>
+      </div>
+
+      <!-- PAGE: FINANCIAL PERFORMANCE -->
+      <div class="page" id="page-fin">
+        <div class="filter-bar">
+          <label>Period:</label><select><option>FY 2024</option><option>FY 2023</option><option>Q4 2024</option></select>
+          <label>View:</label><select><option>Monthly</option><option>Quarterly</option><option>Annual</option></select>
+        </div>
+        <div class="section-title"><i class="ti ti-chart-bar" aria-hidden="true" style="font-size:11px"></i>Financial KPIs</div>
+        <div class="kpi-grid">
+          <div class="kpi-card"><div class="kpi-label">Revenue Growth %</div><div class="kpi-value">18.4%</div><div class="kpi-sub up">Above target 15%</div></div>
+          <div class="kpi-card"><div class="kpi-label">CAGR (3-Year)</div><div class="kpi-value">16.2%</div><div class="kpi-sub up">Strong momentum</div></div>
+          <div class="kpi-card"><div class="kpi-label">Budget Variance</div><div class="kpi-value" style="color:var(--gold)">-$4.8M</div><div class="kpi-sub down">Ops overspend</div></div>
+          <div class="kpi-card"><div class="kpi-label">Forecast Accuracy</div><div class="kpi-value">93.7%</div><div class="kpi-sub up">+1.2pp vs LY</div></div>
+          <div class="kpi-card"><div class="kpi-label">ROI</div><div class="kpi-value">34.2%</div><div class="kpi-sub up">+5.1pp vs LY</div></div>
+          <div class="kpi-card"><div class="kpi-label">Cash Flow (Op.)</div><div class="kpi-value">$52.1M</div><div class="kpi-sub up">+11.4% vs LY</div></div>
+          <div class="kpi-card"><div class="kpi-label">Gross Margin</div><div class="kpi-value">64.5%</div><div class="kpi-sub up">+1.9pp vs LY</div></div>
+          <div class="kpi-card"><div class="kpi-label">OpEx Ratio</div><div class="kpi-value">64.4%</div><div class="kpi-sub neutral">Stable YoY</div></div>
+        </div>
+
+        <div class="chart-row">
+          <div class="chart-card">
+            <div class="chart-head"><span class="chart-head-title">Budget vs Actual</span><span class="chip gold">Bar Chart</span></div>
+            <div class="mini-legend" style="margin-bottom:8px">
+              <span class="legend-item"><span class="legend-dot" style="background:#2E8BF7"></span>Actual</span>
+              <span class="legend-item"><span class="legend-dot" style="background:rgba(46,139,247,.35);border:1px dashed #2E8BF7"></span>Budget</span>
+            </div>
+            <div style="position:relative;height:150px"><canvas id="budgetChart" role="img" aria-label="Quarterly bar chart comparing budget versus actual revenue across Q1-Q4 2024">Q1 under-ran by 2%, Q2-Q4 progressively exceeded budget.</canvas></div>
+          </div>
+          <div class="chart-card">
+            <div class="chart-head"><span class="chart-head-title">Waterfall — Revenue Bridge</span><span class="chip">Waterfall</span></div>
+            <div class="waterfall-bars">
+              <div class="wf-col"><div class="wf-val up">$240M</div><div class="wf-bar" style="height:90px;background:#2E8BF7;width:100%"></div><div class="wf-label">Base</div></div>
+              <div class="wf-col"><div class="wf-val up">+$24M</div><div class="wf-bar" style="height:36px;background:#6EE89A;width:100%"></div><div class="wf-label">New Cust.</div></div>
+              <div class="wf-col"><div class="wf-val up">+$18M</div><div class="wf-bar" style="height:27px;background:#6EE89A;width:100%"></div><div class="wf-label">Upsell</div></div>
+              <div class="wf-col"><div class="wf-val down">-$12M</div><div class="wf-bar" style="height:18px;background:#FF7B7B;width:100%"></div><div class="wf-label">Churn</div></div>
+              <div class="wf-col"><div class="wf-val up">+$14M</div><div class="wf-bar" style="height:21px;background:#6EE89A;width:100%"></div><div class="wf-label">Price</div></div>
+              <div class="wf-col"><div class="wf-val up">$284M</div><div class="wf-bar" style="height:110px;background:#2E8BF7;width:100%"></div><div class="wf-label">Total</div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="chart-row">
+          <div class="chart-card">
+            <div class="chart-head"><span class="chart-head-title">Expense Analysis by Category</span><span class="chip">Treemap</span></div>
+            <div class="treemap">
+              <div class="treemap-cell" style="background:#1A4B8A;color:#A8D8FF;grid-row:1/3">COGS<br>$101M<br><span style="font-size:8px;opacity:.7">35.5%</span></div>
+              <div class="treemap-cell" style="background:#1A3D6A;color:#A8D8FF">R&D $38M</div>
+              <div class="treemap-cell" style="background:#163566;color:#A8D8FF">S&M $32M</div>
+              <div class="treemap-cell" style="background:#0F2D5C;color:#A8D8FF">G&A $24M</div>
+              <div class="treemap-cell" style="background:#0B2450;color:#A8D8FF">Other $14M</div>
+            </div>
+          </div>
+          <div class="chart-card">
+            <div class="chart-head"><span class="chart-head-title">Forecast vs Actual</span><span class="chip green">Line Chart</span></div>
+            <div style="position:relative;height:130px"><canvas id="forecastChart" role="img" aria-label="Line chart comparing monthly revenue forecast against actual results over 12 months">Forecast and actuals closely track; 93.7% accuracy overall.</canvas></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PAGE: SALES & GROWTH -->
+      <div class="page" id="page-sales">
+        <div class="filter-bar">
+          <label>Region:</label><select><option>All Regions</option><option>North America</option><option>EMEA</option><option>APAC</option></select>
+          <label>Product:</label><select><option>All Products</option><option>Platform Pro</option><option>Analytics Suite</option><option>Data Cloud</option></select>
+        </div>
+        <div class="section-title"><i class="ti ti-trending-up" aria-hidden="true" style="font-size:11px"></i>Sales KPIs</div>
+        <div class="kpi-grid">
+          <div class="kpi-card"><div class="kpi-label">Customer Acq. Cost</div><div class="kpi-value">$2,840</div><div class="kpi-sub up">-8.2% vs LY</div></div>
+          <div class="kpi-card"><div class="kpi-label">Customer LTV</div><div class="kpi-value">$38,400</div><div class="kpi-sub up">+12.1% vs LY</div></div>
+          <div class="kpi-card"><div class="kpi-label">LTV:CAC Ratio</div><div class="kpi-value" style="color:#6EE89A">13.5x</div><div class="kpi-sub up">Excellent</div></div>
+          <div class="kpi-card"><div class="kpi-label">Sales Growth %</div><div class="kpi-value">18.4%</div><div class="kpi-sub up">+3.4pp vs target</div></div>
+        </div>
+
+        <div class="chart-row">
+          <div class="chart-card">
+            <div class="chart-head"><span class="chart-head-title">Sales by Region</span><span class="chip">Bar Chart</span></div>
+            <div style="position:relative;height:150px"><canvas id="salesRegionChart" role="img" aria-label="Horizontal bar chart showing sales performance by region: North America leads at $116.7M">North America leads, followed by EMEA and APAC.</canvas></div>
+          </div>
+          <div class="chart-card">
+            <div class="chart-head"><span class="chart-head-title">Sales by Product Line</span><span class="chip">Donut</span></div>
+            <div class="mini-legend" style="margin-bottom:6px">
+              <span class="legend-item"><span class="legend-dot" style="background:#2E8BF7"></span>Platform Pro 42%</span>
+              <span class="legend-item"><span class="legend-dot" style="background:#00B4B4"></span>Analytics 28%</span>
+              <span class="legend-item"><span class="legend-dot" style="background:#F5A623"></span>Data Cloud 20%</span>
+              <span class="legend-item"><span class="legend-dot" style="background:#C792EA"></span>Services 10%</span>
+            </div>
+            <div style="position:relative;height:130px"><canvas id="productChart" role="img" aria-label="Donut chart of revenue by product: Platform Pro 42%, Analytics Suite 28%, Data Cloud 20%, Professional Services 10%">Platform Pro is the largest revenue contributor at 42%.</canvas></div>
+          </div>
+        </div>
+
+        <div class="section-title"><i class="ti ti-crown" aria-hidden="true" style="font-size:11px"></i>Top 5 customers by revenue</div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Customer</th><th>Segment</th><th>Revenue</th><th>Growth</th><th>LTV</th><th>Health</th></tr></thead>
+            <tbody>
+              <tr><td>Apex Global Corp</td><td><span class="badge" style="background:rgba(30,111,217,.2);color:var(--accent2)">Enterprise</span></td><td>$14.2M</td><td class="up">+22%</td><td>$89M</td><td><span class="badge" style="background:rgba(39,174,96,.15);color:#6EE89A">Healthy</span></td></tr>
+              <tr><td>NorthStar Industries</td><td><span class="badge" style="background:rgba(30,111,217,.2);color:var(--accent2)">Enterprise</span></td><td>$11.8M</td><td class="up">+18%</td><td>$74M</td><td><span class="badge" style="background:rgba(39,174,96,.15);color:#6EE89A">Healthy</span></td></tr>
+              <tr><td>Meridian Tech</td><td><span class="badge" style="background:rgba(0,180,180,.15);color:var(--teal)">Mid-Market</span></td><td>$8.4M</td><td class="up">+31%</td><td>$42M</td><td><span class="badge" style="background:rgba(39,174,96,.15);color:#6EE89A">Healthy</span></td></tr>
+              <tr><td>Vanta Solutions</td><td><span class="badge" style="background:rgba(30,111,217,.2);color:var(--accent2)">Enterprise</span></td><td>$7.9M</td><td class="neutral">+9%</td><td>$58M</td><td><span class="badge" style="background:rgba(245,166,35,.15);color:var(--gold)">Monitor</span></td></tr>
+              <tr><td>ClearPath Logistics</td><td><span class="badge" style="background:rgba(0,180,180,.15);color:var(--teal)">Mid-Market</span></td><td>$6.1M</td><td class="down">-3%</td><td>$31M</td><td><span class="badge" style="background:rgba(231,76,60,.15);color:#FF7B7B">At Risk</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="chart-row">
+          <div class="chart-card full">
+            <div class="chart-head"><span class="chart-head-title">Sales Forecast vs Actuals — 18-Month View</span><span class="chip green">Area Chart</span></div>
+            <div class="mini-legend" style="margin-bottom:8px">
+              <span class="legend-item"><span class="legend-dot" style="background:#2E8BF7"></span>Actual</span>
+              <span class="legend-item"><span class="legend-dot" style="background:rgba(245,166,35,.6);border:1px dashed #F5A623"></span>Forecast</span>
+            </div>
+            <div style="position:relative;height:150px"><canvas id="salesForecastChart" role="img" aria-label="Area chart showing 18-month sales actual and forecast trend with 97.3M projected for next quarter">Solid upward trajectory; Q1 2025 forecast is $97.3M.</canvas></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PAGE: CUSTOMER INTELLIGENCE -->
+      <div class="page" id="page-cust">
+        <div class="section-title"><i class="ti ti-users" aria-hidden="true" style="font-size:11px"></i>Customer health KPIs</div>
+        <div class="kpi-grid">
+          <div class="kpi-card"><div class="kpi-label">Total Customers</div><div class="kpi-value">87.4K</div><div class="kpi-sub up">+14.2%</div></div>
+          <div class="kpi-card"><div class="kpi-label">Retention Rate</div><div class="kpi-value">91.7%</div><div class="kpi-sub up">+1.3pp vs LY</div></div>
+          <div class="kpi-card"><div class="kpi-label">Churn Rate</div><div class="kpi-value" style="color:var(--gold)">6.2%</div><div class="kpi-sub neutral">-0.4pp vs LY</div></div>
+          <div class="kpi-card"><div class="kpi-label">Avg NPS Score</div><div class="kpi-value" style="color:#6EE89A">+67</div><div class="kpi-sub up">+8 pts vs LY</div></div>
+          <div class="kpi-card"><div class="kpi-label">CSAT Score</div><div class="kpi-value">4.4/5.0</div><div class="kpi-sub up">+0.2 vs LY</div></div>
+          <div class="kpi-card"><div class="kpi-label">Avg Tenure (mo.)</div><div class="kpi-value">28.4</div><div class="kpi-sub up">+3.1 vs LY</div></div>
+          <div class="kpi-card"><div class="kpi-label">New Customers</div><div class="kpi-value">12,410</div><div class="kpi-sub up">+18.7%</div></div>
+          <div class="kpi-card"><div class="kpi-label">Churned Customers</div><div class="kpi-value" style="color:#FF7B7B">5,417</div><div class="kpi-sub down">↑ 340 vs LY</div></div>
+        </div>
+
+        <div class="chart-row">
+          <div class="chart-card">
+            <div class="chart-head"><span class="chart-head-title">Customer Segmentation</span><span class="chip">Scatter Plot</span></div>
+            <div class="segment-grid">
+              <div class="seg-card"><div class="seg-title">Enterprise</div><div class="seg-val" style="color:var(--accent2)">4,820</div><div class="kpi-sub up">Avg LTV $384K</div></div>
+              <div class="seg-card"><div class="seg-title">Mid-Market</div><div class="seg-val" style="color:var(--teal)">18,340</div><div class="kpi-sub up">Avg LTV $84K</div></div>
+              <div class="seg-card"><div class="seg-title">SMB</div><div class="seg-val" style="color:var(--gold)">48,200</div><div class="kpi-sub neutral">Avg LTV $18K</div></div>
+              <div class="seg-card"><div class="seg-title">Startup / Trial</div><div class="seg-val" style="color:var(--muted)">16,040</div><div class="kpi-sub neutral">Avg LTV $3.2K</div></div>
+            </div>
+          </div>
+          <div class="chart-card">
+            <div class="chart-head"><span class="chart-head-title">NPS Distribution</span><span class="chip green">Stacked Bar</span></div>
+            <div class="nps-wrap">
+              <div class="nps-bar" style="width:16%;background:#FF7B7B">16%</div>
+              <div class="nps-bar" style="width:17%;background:#F5A623">17%</div>
+              <div class="nps-bar" style="width:67%;background:#6EE89A">67%</div>
+            </div>
+            <div class="mini-legend">
+              <span class="legend-item"><span class="legend-dot" style="background:#FF7B7B"></span>Detractors 16%</span>
+              <span class="legend-item"><span class="legend-dot" style="background:#F5A623"></span>Passives 17%</span>
+              <span class="legend-item"><span class="legend-dot" style="background:#6EE89A"></span>Promoters 67%</span>
+            </div>
+            <div style="margin-top:10px">
+              <div class="chart-head"><span class="chart-head-title">Monthly Churn Rate Trend</span></div>
+              <div style="position:relative;height:90px"><canvas id="churnChart" role="img" aria-label="Line chart showing monthly churn rate trend declining from 7.1% to 5.8% over 12 months">Churn declining steadily from 7.1% to 5.8%.</canvas></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-title"><i class="ti ti-route" aria-hidden="true" style="font-size:11px"></i>Customer journey funnel</div>
+        <div class="chart-card full">
+          <div class="chart-head"><span class="chart-head-title">Acquisition → Activation → Retention → Expansion</span><span class="chip">Funnel Chart</span></div>
+          <div style="position:relative;height:140px"><canvas id="funnelChart" role="img" aria-label="Funnel chart showing customer journey stages: 100K leads, 28K trials, 12.4K converted, 10.8K retained, 3.2K expanded">Conversion from trial to paid is 44%; retention to expansion is 30%.</canvas></div>
+        </div>
+      </div>
+
+      <!-- PAGE: OPERATIONAL INTELLIGENCE -->
+      <div class="page" id="page-ops">
+        <div class="section-title"><i class="ti ti-settings-2" aria-hidden="true" style="font-size:11px"></i>Operational KPIs</div>
+        <div class="kpi-grid">
+          <div class="kpi-card"><div class="kpi-label">Process Efficiency</div><div class="kpi-value">87.3%</div><div class="kpi-sub up">+2.1pp vs LY</div></div>
+          <div class="kpi-card"><div class="kpi-label">Resource Utilization</div><div class="kpi-value">79.4%</div><div class="kpi-sub neutral">On target 80%</div></div>
+          <div class="kpi-card"><div class="kpi-label">Productivity Score</div><div class="kpi-value">84.2</div><div class="kpi-sub up">+6.3 vs LY</div></div>
+          <div class="kpi-card"><div class="kpi-label">Delivery On-Time %</div><div class="kpi-value">94.8%</div><div class="kpi-sub up">+1.4pp vs LY</div></div>
+          <div class="kpi-card"><div class="kpi-label">Supply Chain Score</div><div class="kpi-value">88.1</div><div class="kpi-sub up">+4.2 vs LY</div></div>
+          <div class="kpi-card"><div class="kpi-label">Operational Risk</div><div class="kpi-value" style="color:#6EE89A">Low: 18.4</div><div class="kpi-sub up">-6.1 pts vs LY</div></div>
+          <div class="kpi-card"><div class="kpi-label">Cost per Unit</div><div class="kpi-value">$142</div><div class="kpi-sub up">-$18 vs LY</div></div>
+          <div class="kpi-card"><div class="kpi-label">SLA Compliance</div><div class="kpi-value">98.2%</div><div class="kpi-sub up">+0.8pp</div></div>
+        </div>
+
+        <div class="chart-row">
+          <div class="chart-card">
+            <div class="chart-head"><span class="chart-head-title">Dept. Resource Utilization</span><span class="chip">Bar Chart</span></div>
+            <div style="position:relative;height:150px"><canvas id="utilChart" role="img" aria-label="Horizontal bar chart showing resource utilization by department, Engineering at 88%, Sales at 82%, Ops at 76%">Engineering is highest at 88%; Customer Success has headroom at 68%.</canvas></div>
+          </div>
+          <div class="chart-card">
+            <div class="chart-head"><span class="chart-head-title">Productivity Trend (Heat Map)</span><span class="chip">Heat Map</span></div>
+            <div style="margin-top:4px">
+              <div style="display:flex;gap:3px;margin-bottom:3px">
+                <div style="width:60px;font-size:9px;color:var(--text2)"></div>
+                <div style="flex:1;display:grid;grid-template-columns:repeat(4,1fr);gap:3px">
+                  <div style="font-size:9px;color:var(--text2);text-align:center">Q1</div>
+                  <div style="font-size:9px;color:var(--text2);text-align:center">Q2</div>
+                  <div style="font-size:9px;color:var(--text2);text-align:center">Q3</div>
+                  <div style="font-size:9px;color:var(--text2);text-align:center">Q4</div>
+                </div>
+              </div>
+              <div id="heatmap-rows"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-title"><i class="ti ti-shield-check" aria-hidden="true" style="font-size:11px"></i>Operational risk scorecard</div>
+        <div class="op-grid">
+          <div class="op-card"><div class="kpi-label">Supply Chain Risk</div><div class="score-val up">Low</div><div class="score-bar-wrap"><div class="score-bar" style="width:20%;background:#6EE89A"></div></div></div>
+          <div class="op-card"><div class="kpi-label">IT/Cyber Risk</div><div class="score-val neutral">Medium</div><div class="score-bar-wrap"><div class="score-bar" style="width:55%;background:var(--gold)"></div></div></div>
+          <div class="op-card"><div class="kpi-label">Compliance Risk</div><div class="score-val up">Low</div><div class="score-bar-wrap"><div class="score-bar" style="width:15%;background:#6EE89A"></div></div></div>
+          <div class="op-card"><div class="kpi-label">Financial Risk</div><div class="score-val neutral">Medium</div><div class="score-bar-wrap"><div class="score-bar" style="width:48%;background:var(--gold)"></div></div></div>
+          <div class="op-card"><div class="kpi-label">People Risk</div><div class="score-val up">Low</div><div class="score-bar-wrap"><div class="score-bar" style="width:25%;background:#6EE89A"></div></div></div>
+          <div class="op-card"><div class="kpi-label">Market Risk</div><div class="score-val down">Elevated</div><div class="score-bar-wrap"><div class="score-bar" style="width:70%;background:#FF7B7B"></div></div></div>
+        </div>
+      </div>
+
+      <!-- PAGE: STRATEGIC INSIGHTS -->
+      <div class="page" id="page-strat">
+        <div class="section-title"><i class="ti ti-target" aria-hidden="true" style="font-size:11px"></i>Strategic KPI scorecard</div>
+        <div class="scorecard-grid">
+          <div class="score-card"><div class="score-label">Business Health Score</div><div class="score-val" style="color:#6EE89A">84.7 / 100</div><div class="score-bar-wrap"><div class="score-bar" style="width:84.7%;background:#6EE89A"></div></div></div>
+          <div class="score-card"><div class="score-label">Strategic Perf. Index</div><div class="score-val" style="color:var(--gold)">82.4 / 100</div><div class="score-bar-wrap"><div class="score-bar" style="width:82.4%;background:var(--gold)"></div></div></div>
+          <div class="score-card"><div class="score-label">Innovation Score</div><div class="score-val" style="color:var(--accent2)">76.1 / 100</div><div class="score-bar-wrap"><div class="score-bar" style="width:76.1%;background:var(--accent2)"></div></div></div>
+          <div class="score-card"><div class="score-label">Market Leadership</div><div class="score-val" style="color:#6EE89A">88.3 / 100</div><div class="score-bar-wrap"><div class="score-bar" style="width:88.3%;background:#6EE89A"></div></div></div>
+          <div class="score-card"><div class="score-label">ESG Score</div><div class="score-val" style="color:var(--teal)">79.0 / 100</div><div class="score-bar-wrap"><div class="score-bar" style="width:79%;background:var(--teal)"></div></div></div>
+          <div class="score-card"><div class="score-label">Talent Retention</div><div class="score-val" style="color:var(--gold)">91.2%</div><div class="score-bar-wrap"><div class="score-bar" style="width:91.2%;background:var(--gold)"></div></div></div>
+        </div>
+
+        <div class="chart-row">
+          <div class="chart-card">
+            <div class="chart-head"><span class="chart-head-title">SWOT Indicators</span><span class="chip">Quadrant</span></div>
+            <div class="swot-grid">
+              <div class="swot-card s"><div class="swot-title s">Strengths</div><div class="swot-item">→ Market leadership 23.8% share</div><div class="swot-item">→ NPS +67, class-leading CX</div><div class="swot-item">→ Strong LTV:CAC of 13.5x</div></div>
+              <div class="swot-card w"><div class="swot-title w">Weaknesses</div><div class="swot-item">→ APAC churn above threshold</div><div class="swot-item">→ Q4 budget overspend $4.8M</div><div class="swot-item">→ Innovation score below peer avg</div></div>
+              <div class="swot-card o"><div class="swot-title o">Opportunities</div><div class="swot-item">→ LATAM expansion (10% rev share)</div><div class="swot-item">→ AI product upsell pipeline $38M</div><div class="swot-item">→ SMB self-serve motion untapped</div></div>
+              <div class="swot-card t"><div class="swot-title t">Threats</div><div class="swot-item">→ Elevated market risk score 70</div><div class="swot-item">→ Competitor pricing pressure</div><div class="swot-item">→ IT/Cyber risk medium rating</div></div>
+            </div>
+          </div>
+          <div class="chart-card">
+            <div class="chart-head"><span class="chart-head-title">Department Performance Ranking</span><span class="chip">Ranking</span></div>
+            <div class="dept-rank">
+              <div class="dept-row"><div class="dept-num">1</div><div class="dept-name">Enterprise Sales</div><div class="dept-bar-wrap"><div class="dept-bar" style="width:96%"></div></div><div class="dept-score up">96.2</div></div>
+              <div class="dept-row"><div class="dept-num">2</div><div class="dept-name">Product & Engineering</div><div class="dept-bar-wrap"><div class="dept-bar" style="width:91%"></div></div><div class="dept-score up">91.7</div></div>
+              <div class="dept-row"><div class="dept-num">3</div><div class="dept-name">Customer Success</div><div class="dept-bar-wrap"><div class="dept-bar" style="width:88%"></div></div><div class="dept-score up">88.4</div></div>
+              <div class="dept-row"><div class="dept-num">4</div><div class="dept-name">Marketing</div><div class="dept-bar-wrap"><div class="dept-bar" style="width:78%"></div></div><div class="dept-score neutral">78.1</div></div>
+              <div class="dept-row"><div class="dept-num">5</div><div class="dept-name">Operations</div><div class="dept-bar-wrap"><div class="dept-bar" style="width:76%"></div></div><div class="dept-score neutral">76.3</div></div>
+              <div class="dept-row"><div class="dept-num">6</div><div class="dept-name">Finance</div><div class="dept-bar-wrap"><div class="dept-bar" style="width:74%"></div></div><div class="dept-score neutral">74.8</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PAGE: DATA MODEL / SCHEMA -->
+      <div class="page" id="page-schema">
+        <div class="section-title"><i class="ti ti-database" aria-hidden="true" style="font-size:11px"></i>Star schema — fact tables</div>
+        <div class="schema-wrap">
+          <div class="schema-table">
+            <div class="schema-thead fact">FactSales</div>
+            <div class="schema-row"><span class="pk">PK</span>SalesID</div>
+            <div class="schema-row"><span class="fk">FK</span>DateKey</div>
+            <div class="schema-row"><span class="fk">FK</span>CustomerKey</div>
+            <div class="schema-row"><span class="fk">FK</span>ProductKey</div>
+            <div class="schema-row"><span class="fk">FK</span>RegionKey</div>
+            <div class="schema-row">SaleAmount</div>
+            <div class="schema-row">Quantity</div>
+            <div class="schema-row">Discount</div>
+            <div class="schema-row">COGS</div>
+            <div class="schema-row">ChannelCode</div>
+          </div>
+          <div class="schema-table">
+            <div class="schema-thead fact">FactFinance</div>
+            <div class="schema-row"><span class="pk">PK</span>FinanceID</div>
+            <div class="schema-row"><span class="fk">FK</span>DateKey</div>
+            <div class="schema-row"><span class="fk">FK</span>DeptKey</div>
+            <div class="schema-row">ActualAmount</div>
+            <div class="schema-row">BudgetAmount</div>
+            <div class="schema-row">ForecastAmount</div>
+            <div class="schema-row">EBITDA</div>
+            <div class="schema-row">CashFlow</div>
+            <div class="schema-row">AccountCode</div>
+            <div class="schema-row">GLCategory</div>
+          </div>
+          <div class="schema-table">
+            <div class="schema-thead fact">FactOperations</div>
+            <div class="schema-row"><span class="pk">PK</span>OpsID</div>
+            <div class="schema-row"><span class="fk">FK</span>DateKey</div>
+            <div class="schema-row"><span class="fk">FK</span>DeptKey</div>
+            <div class="schema-row">EfficiencyScore</div>
+            <div class="schema-row">UtilizationRate</div>
+            <div class="schema-row">ProductivityIdx</div>
+            <div class="schema-row">DeliveryRate</div>
+            <div class="schema-row">RiskScore</div>
+            <div class="schema-row">SLACompliance</div>
+          </div>
+          <div class="schema-table">
+            <div class="schema-thead fact">FactCustomer</div>
+            <div class="schema-row"><span class="pk">PK</span>CustEventID</div>
+            <div class="schema-row"><span class="fk">FK</span>CustomerKey</div>
+            <div class="schema-row"><span class="fk">FK</span>DateKey</div>
+            <div class="schema-row">EventType</div>
+            <div class="schema-row">NPS_Score</div>
+            <div class="schema-row">CSAT_Score</div>
+            <div class="schema-row">ChurnFlag</div>
+            <div class="schema-row">LTV</div>
+            <div class="schema-row">CAC</div>
+          </div>
+          <div class="schema-table">
+            <div class="schema-thead fact">FactTargets</div>
+            <div class="schema-row"><span class="pk">PK</span>TargetID</div>
+            <div class="schema-row"><span class="fk">FK</span>DateKey</div>
+            <div class="schema-row"><span class="fk">FK</span>DeptKey</div>
+            <div class="schema-row">KPI_Code</div>
+            <div class="schema-row">TargetValue</div>
+            <div class="schema-row">StretchTarget</div>
+            <div class="schema-row">MinThreshold</div>
+          </div>
+        </div>
+
+        <div class="section-title"><i class="ti ti-table" aria-hidden="true" style="font-size:11px"></i>Dimension tables</div>
+        <div class="schema-wrap">
+          <div class="schema-table">
+            <div class="schema-thead dim">DimDate</div>
+            <div class="schema-row"><span class="pk">PK</span>DateKey</div>
+            <div class="schema-row">FullDate</div>
+            <div class="schema-row">Year · Quarter</div>
+            <div class="schema-row">Month · MonthName</div>
+            <div class="schema-row">Week · DayOfWeek</div>
+            <div class="schema-row">IsWeekend · IsHoliday</div>
+            <div class="schema-row">FiscalYear · FiscalQtr</div>
+            <div class="schema-row">YTD_Flag · PriorYrKey</div>
+          </div>
+          <div class="schema-table">
+            <div class="schema-thead dim">DimProduct</div>
+            <div class="schema-row"><span class="pk">PK</span>ProductKey</div>
+            <div class="schema-row">ProductID · SKU</div>
+            <div class="schema-row">ProductName</div>
+            <div class="schema-row">Category · Subcategory</div>
+            <div class="schema-row">ListPrice · COGS</div>
+            <div class="schema-row">LaunchDate</div>
+            <div class="schema-row">IsActive</div>
+          </div>
+          <div class="schema-table">
+            <div class="schema-thead dim">DimCustomer</div>
+            <div class="schema-row"><span class="pk">PK</span>CustomerKey</div>
+            <div class="schema-row">CustomerID · Name</div>
+            <div class="schema-row">Segment · Tier</div>
+            <div class="schema-row">Industry · Region</div>
+            <div class="schema-row">AcquisitionDate</div>
+            <div class="schema-row">AccountManager</div>
+            <div class="schema-row">ContractType</div>
+          </div>
+          <div class="schema-table">
+            <div class="schema-thead dim">DimRegion</div>
+            <div class="schema-row"><span class="pk">PK</span>RegionKey</div>
+            <div class="schema-row">Country · State</div>
+            <div class="schema-row">Territory · Zone</div>
+            <div class="schema-row">Latitude · Longitude</div>
+            <div class="schema-row">SalesTeamID</div>
+          </div>
+          <div class="schema-table">
+            <div class="schema-thead dim">DimDepartment</div>
+            <div class="schema-row"><span class="pk">PK</span>DeptKey</div>
+            <div class="schema-row">DeptID · DeptName</div>
+            <div class="schema-row">Division · BU</div>
+            <div class="schema-row">CostCenter</div>
+            <div class="schema-row">HeadCount</div>
+            <div class="schema-row">ManagerID</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PAGE: DAX MEASURES -->
+      <div class="page" id="page-dax">
+        <div class="section-title"><i class="ti ti-code" aria-hidden="true" style="font-size:11px"></i>Core DAX measures — production-ready</div>
+
+        <div class="code-section">
+          <div class="code-label">Revenue & Profit</div>
+          <div class="dax-block">
+<span class="dax-comment">// ── Total Revenue ──────────────────────────────────────</span>
+<span class="dax-keyword">Total Revenue</span> =
+<span class="dax-func">CALCULATE</span>(
+    <span class="dax-func">SUM</span>( FactSales[SaleAmount] ),
+    <span class="dax-func">ALL</span>( DimDate[IsHoliday] )
+)
+
+<span class="dax-comment">// ── Total Profit ───────────────────────────────────────</span>
+<span class="dax-keyword">Total Profit</span> =
+[Total Revenue] - <span class="dax-func">SUM</span>( FactSales[COGS] )
+    - <span class="dax-func">CALCULATE</span>( <span class="dax-func">SUM</span>( FactFinance[ActualAmount] ),
+        FactFinance[GLCategory] = <span class="dax-str">"OpEx"</span> )
+
+<span class="dax-comment">// ── Profit Margin % ────────────────────────────────────</span>
+<span class="dax-keyword">Profit Margin %</span> =
+<span class="dax-func">DIVIDE</span>( [Total Profit], [Total Revenue], 0 )
+
+<span class="dax-comment">// ── Revenue Growth % ───────────────────────────────────</span>
+<span class="dax-keyword">Revenue Growth %</span> =
+<span class="dax-keyword">VAR</span> CY = [Total Revenue]
+<span class="dax-keyword">VAR</span> PY = <span class="dax-func">CALCULATE</span>( [Total Revenue],
+    <span class="dax-func">SAMEPERIODLASTYEAR</span>( DimDate[FullDate] ) )
+<span class="dax-keyword">RETURN</span> <span class="dax-func">DIVIDE</span>( CY - PY, PY, 0 )
+
+<span class="dax-comment">// ── CAGR (3-Year) ──────────────────────────────────────</span>
+<span class="dax-keyword">CAGR 3Y</span> =
+<span class="dax-keyword">VAR</span> EndVal  = [Total Revenue]
+<span class="dax-keyword">VAR</span> BegVal  = <span class="dax-func">CALCULATE</span>( [Total Revenue],
+    <span class="dax-func">DATESINPERIOD</span>( DimDate[FullDate],
+        <span class="dax-func">MIN</span>(DimDate[FullDate]), -3, <span class="dax-func">YEAR</span> ) )
+<span class="dax-keyword">RETURN</span> <span class="dax-func">POWER</span>( <span class="dax-func">DIVIDE</span>( EndVal, BegVal, 1 ), 1/3 ) - 1
+
+<span class="dax-comment">// ── EBITDA ─────────────────────────────────────────────</span>
+<span class="dax-keyword">EBITDA</span> =
+[Total Profit]
++ <span class="dax-func">CALCULATE</span>( <span class="dax-func">SUM</span>( FactFinance[ActualAmount] ),
+    FactFinance[GLCategory] <span class="dax-func">IN</span> { <span class="dax-str">"Depreciation"</span>, <span class="dax-str">"Amortization"</span>,
+    <span class="dax-str">"Interest"</span>, <span class="dax-str">"Tax"</span> } )</div>
+        </div>
+
+        <div class="code-section">
+          <div class="code-label">Budget, Forecast & ROI</div>
+          <div class="dax-block">
+<span class="dax-comment">// ── Budget Variance ────────────────────────────────────</span>
+<span class="dax-keyword">Budget Variance</span> =
+[Total Revenue] - <span class="dax-func">SUM</span>( FactTargets[TargetValue] )
+
+<span class="dax-keyword">Budget Variance %</span> =
+<span class="dax-func">DIVIDE</span>( [Budget Variance],
+    <span class="dax-func">SUM</span>( FactTargets[TargetValue] ), 0 )
+
+<span class="dax-comment">// ── Forecast Accuracy ──────────────────────────────────</span>
+<span class="dax-keyword">Forecast Accuracy %</span> =
+1 - <span class="dax-func">ABS</span>( <span class="dax-func">DIVIDE</span>(
+    [Total Revenue] - <span class="dax-func">SUM</span>( FactFinance[ForecastAmount] ),
+    <span class="dax-func">SUM</span>( FactFinance[ForecastAmount] ), 0 ) )
+
+<span class="dax-comment">// ── ROI ────────────────────────────────────────────────</span>
+<span class="dax-keyword">ROI %</span> =
+<span class="dax-keyword">VAR</span> TotalInvest = <span class="dax-func">CALCULATE</span>( <span class="dax-func">SUM</span>( FactFinance[ActualAmount] ),
+    FactFinance[GLCategory] = <span class="dax-str">"Investment"</span> )
+<span class="dax-keyword">RETURN</span> <span class="dax-func">DIVIDE</span>( [Total Profit] - TotalInvest,
+    TotalInvest, 0 )</div>
+        </div>
+
+        <div class="code-section">
+          <div class="code-label">Customer Metrics</div>
+          <div class="dax-block">
+<span class="dax-comment">// ── Customer Retention % ───────────────────────────────</span>
+<span class="dax-keyword">Customer Retention %</span> =
+<span class="dax-keyword">VAR</span> StartCust = <span class="dax-func">CALCULATE</span>( <span class="dax-func">DISTINCTCOUNT</span>( FactCustomer[CustomerKey] ),
+    <span class="dax-func">DATESINPERIOD</span>( DimDate[FullDate],
+        <span class="dax-func">FIRSTDATE</span>( DimDate[FullDate] ), -1, <span class="dax-func">YEAR</span> ) )
+<span class="dax-keyword">VAR</span> ChurnCust = <span class="dax-func">CALCULATE</span>( <span class="dax-func">COUNTROWS</span>( FactCustomer ),
+    FactCustomer[ChurnFlag] = 1 )
+<span class="dax-keyword">RETURN</span> <span class="dax-func">DIVIDE</span>( StartCust - ChurnCust, StartCust, 0 )
+
+<span class="dax-comment">// ── Churn % ────────────────────────────────────────────</span>
+<span class="dax-keyword">Churn %</span> = 1 - [Customer Retention %]
+
+<span class="dax-comment">// ── Customer LTV ───────────────────────────────────────</span>
+<span class="dax-keyword">Customer LTV</span> =
+<span class="dax-keyword">VAR</span> AvgRevPerCust = <span class="dax-func">DIVIDE</span>( [Total Revenue],
+    <span class="dax-func">DISTINCTCOUNT</span>( FactSales[CustomerKey] ), 0 )
+<span class="dax-keyword">VAR</span> AvgLifespan   = <span class="dax-func">DIVIDE</span>( 1, [Churn %], 0 )
+<span class="dax-keyword">VAR</span> GrossMargin   = [Profit Margin %]
+<span class="dax-keyword">RETURN</span> AvgRevPerCust * AvgLifespan * GrossMargin
+
+<span class="dax-comment">// ── Customer Acquisition Cost ──────────────────────────</span>
+<span class="dax-keyword">Customer Acquisition Cost</span> =
+<span class="dax-keyword">VAR</span> MktgSales = <span class="dax-func">CALCULATE</span>( <span class="dax-func">SUM</span>( FactFinance[ActualAmount] ),
+    FactFinance[GLCategory] <span class="dax-func">IN</span> { <span class="dax-str">"Marketing"</span>, <span class="dax-str">"Sales"</span> } )
+<span class="dax-keyword">VAR</span> NewCusts  = <span class="dax-func">CALCULATE</span>( <span class="dax-func">COUNTROWS</span>( FactCustomer ),
+    FactCustomer[EventType] = <span class="dax-str">"New"</span> )
+<span class="dax-keyword">RETURN</span> <span class="dax-func">DIVIDE</span>( MktgSales, NewCusts, 0 )
+
+<span class="dax-comment">// ── NPS Score ──────────────────────────────────────────</span>
+<span class="dax-keyword">NPS Score</span> =
+<span class="dax-keyword">VAR</span> Promoters  = <span class="dax-func">CALCULATE</span>( <span class="dax-func">COUNTROWS</span>( FactCustomer ),
+    FactCustomer[NPS_Score] >= 9 )
+<span class="dax-keyword">VAR</span> Detractors = <span class="dax-func">CALCULATE</span>( <span class="dax-func">COUNTROWS</span>( FactCustomer ),
+    FactCustomer[NPS_Score] <= 6 )
+<span class="dax-keyword">VAR</span> Total      = <span class="dax-func">COUNTROWS</span>( FactCustomer )
+<span class="dax-keyword">RETURN</span> <span class="dax-func">DIVIDE</span>( Promoters - Detractors, Total, 0 ) * 100</div>
+        </div>
+
+        <div class="code-section">
+          <div class="code-label">Strategic Indices</div>
+          <div class="dax-block">
+<span class="dax-comment">// ── Market Share % ─────────────────────────────────────</span>
+<span class="dax-keyword">Market Share %</span> =
+<span class="dax-func">DIVIDE</span>( [Total Revenue],
+    <span class="dax-func">CALCULATE</span>( [Total Revenue], <span class="dax-func">ALL</span>( DimCustomer ) ) * 4.2, 0 )
+<span class="dax-comment">// Note: 4.2 = estimated total addressable market multiplier</span>
+
+<span class="dax-comment">// ── Strategic Performance Index ────────────────────────</span>
+<span class="dax-keyword">Strategic Performance Index</span> =
+<span class="dax-keyword">VAR</span> w_Rev   = [Revenue Growth %]      * 25
+<span class="dax-keyword">VAR</span> w_Marg  = [Profit Margin %]        * 20
+<span class="dax-keyword">VAR</span> w_Ret   = [Customer Retention %]   * 20
+<span class="dax-keyword">VAR</span> w_NPS   = ( [NPS Score] + 100 ) / 200 * 15
+<span class="dax-keyword">VAR</span> w_ROI   = <span class="dax-func">MIN</span>( [ROI %] / 0.4, 1 )  * 10
+<span class="dax-keyword">VAR</span> w_Ops   = <span class="dax-func">AVERAGE</span>( FactOperations[EfficiencyScore] ) / 100 * 10
+<span class="dax-keyword">RETURN</span> w_Rev + w_Marg + w_Ret + w_NPS + w_ROI + w_Ops
+
+<span class="dax-comment">// ── Business Health Score ──────────────────────────────</span>
+<span class="dax-keyword">Business Health Score</span> =
+<span class="dax-keyword">VAR</span> FinHealth  = <span class="dax-func">MIN</span>( [Profit Margin %] / 0.25, 1 ) * 30
+<span class="dax-keyword">VAR</span> CustHealth = [Customer Retention %] * 25
+<span class="dax-keyword">VAR</span> OpsHealth  = <span class="dax-func">AVERAGE</span>( FactOperations[EfficiencyScore] ) / 100 * 25
+<span class="dax-keyword">VAR</span> GrowHealth = <span class="dax-func">MIN</span>( [Revenue Growth %] / 0.20, 1 ) * 20
+<span class="dax-keyword">RETURN</span> ( FinHealth + CustHealth + OpsHealth + GrowHealth ) * 100
+
+<span class="dax-comment">// ── Productivity Score ─────────────────────────────────</span>
+<span class="dax-keyword">Productivity Score</span> =
+<span class="dax-func">DIVIDE</span>( [Total Revenue],
+    <span class="dax-func">CALCULATE</span>( <span class="dax-func">SUM</span>( DimDepartment[HeadCount] ),
+        <span class="dax-func">ALL</span>( DimDepartment ) ), 0 )</div>
+        </div>
+      </div>
+
+      <!-- PAGE: POWER QUERY M CODE -->
+      <div class="page" id="page-mcode">
+        <div class="section-title"><i class="ti ti-terminal-2" aria-hidden="true" style="font-size:11px"></i>Power Query M — production scripts</div>
+
+        <div class="code-section">
+          <div class="code-label">Date Table Generation</div>
+          <div class="mcode-block">
+<span class="mcode-cmt">// DimDate — fully computed calendar table</span>
+<span class="mcode-kw">let</span>
+    StartDate   = #date(2020, 1, 1),
+    EndDate     = Date.From(DateTime.LocalNow()),
+    DateRange   = {Number.From(StartDate)..Number.From(EndDate)},
+    DateList    = List.Transform(DateRange, Number.ToDate),
+
+    ToTable     = Table.FromList(DateList, Splitter.SplitByNothing(),
+                    {<span class="mcode-str">"Date"</span>}, <span class="mcode-kw">null</span>, ExtraValues.Error),
+
+    AddYear     = Table.AddColumn(ToTable, <span class="mcode-str">"Year"</span>,
+                    <span class="mcode-kw">each</span> Date.Year([Date]), Int64.Type),
+    AddQtr      = Table.AddColumn(AddYear,  <span class="mcode-str">"Quarter"</span>,
+                    <span class="mcode-kw">each</span> <span class="mcode-str">"Q"</span> & Text.From(Date.QuarterOfYear([Date])), type text),
+    AddMonth    = Table.AddColumn(AddQtr,   <span class="mcode-str">"MonthNum"</span>,
+                    <span class="mcode-kw">each</span> Date.Month([Date]), Int64.Type),
+    AddMonthNm  = Table.AddColumn(AddMonth, <span class="mcode-str">"MonthName"</span>,
+                    <span class="mcode-kw">each</span> Date.MonthName([Date]), type text),
+    AddWeek     = Table.AddColumn(AddMonthNm, <span class="mcode-str">"WeekNum"</span>,
+                    <span class="mcode-kw">each</span> Date.WeekOfYear([Date]), Int64.Type),
+    AddDoW      = Table.AddColumn(AddWeek,  <span class="mcode-str">"DayOfWeek"</span>,
+                    <span class="mcode-kw">each</span> Date.DayOfWeekName([Date]), type text),
+    AddIsWknd   = Table.AddColumn(AddDoW,   <span class="mcode-str">"IsWeekend"</span>,
+                    <span class="mcode-kw">each</span> Date.DayOfWeek([Date]) >= 5, type logical),
+    AddFiscalYr = Table.AddColumn(AddIsWknd, <span class="mcode-str">"FiscalYear"</span>,
+                    <span class="mcode-kw">each</span> <span class="mcode-kw">if</span> Date.Month([Date]) >= 7
+                         <span class="mcode-kw">then</span> Date.Year([Date]) + 1
+                         <span class="mcode-kw">else</span> Date.Year([Date]), Int64.Type),
+    AddDateKey  = Table.AddColumn(AddFiscalYr, <span class="mcode-str">"DateKey"</span>,
+                    <span class="mcode-kw">each</span> Int32.From(Date.ToText([Date], <span class="mcode-str">"yyyyMMdd"</span>)), Int64.Type),
+    SetTypes    = Table.TransformColumnTypes(AddDateKey, {{<span class="mcode-str">"Date"</span>, type date}})
+<span class="mcode-kw">in</span>
+    SetTypes</div>
+        </div>
+
+        <div class="code-section">
+          <div class="code-label">Data Cleaning & Quality Checks</div>
+          <div class="mcode-block">
+<span class="mcode-cmt">// FactSales — clean, validate, transform</span>
+<span class="mcode-kw">let</span>
+    Source        = Sql.Database(<span class="mcode-str">"bi-server.database.windows.net"</span>,
+                        <span class="mcode-str">"BI_Warehouse"</span>),
+    RawSales      = Source{[Schema=<span class="mcode-str">"dbo"</span>,Item=<span class="mcode-str">"FactSales"</span>]}[Data],
+
+    <span class="mcode-cmt">// 1. Remove duplicates on SalesID</span>
+    DedupeRows    = Table.Distinct(RawSales, {<span class="mcode-str">"SalesID"</span>}),
+
+    <span class="mcode-cmt">// 2. Filter out test/demo records</span>
+    RemoveTest    = Table.SelectRows(DedupeRows,
+                        <span class="mcode-kw">each</span> not Text.StartsWith([CustomerID], <span class="mcode-str">"TEST"</span>)
+                        <span class="mcode-kw">and</span> [SaleAmount] > 0),
+
+    <span class="mcode-cmt">// 3. Handle missing values — fill SaleAmount nulls with 0</span>
+    FillNulls     = Table.FillDown(
+                        Table.ReplaceValue(RemoveTest, <span class="mcode-kw">null</span>, 0,
+                            Replacer.ReplaceValue, {<span class="mcode-str">"SaleAmount"</span>, <span class="mcode-str">"Discount"</span>}),
+                        {<span class="mcode-str">"RegionKey"</span>}),
+
+    <span class="mcode-cmt">// 4. Add derived columns</span>
+    AddNetSale    = Table.AddColumn(FillNulls, <span class="mcode-str">"NetSale"</span>,
+                        <span class="mcode-kw">each</span> [SaleAmount] * (1 - [Discount]), Currency.Type),
+    AddGrossProf  = Table.AddColumn(AddNetSale, <span class="mcode-str">"GrossProfit"</span>,
+                        <span class="mcode-kw">each</span> [NetSale] - [COGS], Currency.Type),
+    AddDateKey    = Table.AddColumn(AddGrossProf, <span class="mcode-str">"DateKey"</span>,
+                        <span class="mcode-kw">each</span> Int32.From(Date.ToText(
+                            Date.From([OrderDate]), <span class="mcode-str">"yyyyMMdd"</span>)), Int64.Type),
+
+    <span class="mcode-cmt">// 5. Data quality — flag negative margins</span>
+    AddQAFlag     = Table.AddColumn(AddDateKey, <span class="mcode-str">"QA_NegativeMargin"</span>,
+                        <span class="mcode-kw">each</span> [GrossProfit] < 0, type logical),
+
+    <span class="mcode-cmt">// 6. Set final column types</span>
+    FinalTypes    = Table.TransformColumnTypes(AddQAFlag, {
+                        {<span class="mcode-str">"SalesID"</span>,   Int64.Type},
+                        {<span class="mcode-str">"OrderDate"</span>, type date},
+                        {<span class="mcode-str">"SaleAmount"</span>,Currency.Type}})
+<span class="mcode-kw">in</span>
+    FinalTypes</div>
+        </div>
+      </div>
+
+      <!-- PAGE: JSON THEME -->
+      <div class="page" id="page-theme">
+        <div class="section-title"><i class="ti ti-palette" aria-hidden="true" style="font-size:11px"></i>Power BI JSON theme — dark executive palette</div>
+        <div class="json-block">
+{
+  <span class="json-key">"name"</span>: <span class="json-str">"StrategicBI_Executive_Dark"</span>,
+  <span class="json-key">"dataColors"</span>: [
+    <span class="json-str">"#2E8BF7"</span>, <span class="json-str">"#00B4B4"</span>, <span class="json-str">"#F5A623"</span>,
+    <span class="json-str">"#6EE89A"</span>, <span class="json-str">"#C792EA"</span>, <span class="json-str">"#FF7B7B"</span>,
+    <span class="json-str">"#89DDFF"</span>, <span class="json-str">"#FFCB6B"</span>
+  ],
+  <span class="json-key">"background"</span>: <span class="json-str">"#0B1F3A"</span>,
+  <span class="json-key">"foreground"</span>: <span class="json-str">"#E8F0FE"</span>,
+  <span class="json-key">"tableAccent"</span>: <span class="json-str">"#2E8BF7"</span>,
+  <span class="json-key">"visualStyles"</span>: {
+    <span class="json-key">"*"</span>: { <span class="json-key">"*"</span>: {
+      <span class="json-key">"background"</span>: [{ <span class="json-key">"color"</span>: { <span class="json-key">"solid"</span>: { <span class="json-key">"color"</span>: <span class="json-str">"#0F2540"</span> }},
+          <span class="json-key">"transparency"</span>: <span class="json-num">0</span> }],
+      <span class="json-key">"border"</span>: [{ <span class="json-key">"color"</span>: { <span class="json-key">"solid"</span>: { <span class="json-key">"color"</span>: <span class="json-str">"#1E3A5F"</span> }}}],
+      <span class="json-key">"fontFamily"</span>: [{ <span class="json-key">"value"</span>: <span class="json-str">"Segoe UI, sans-serif"</span> }]
+    }},
+    <span class="json-key">"card"</span>: { <span class="json-key">"*"</span>: {
+      <span class="json-key">"calloutValue"</span>: [{ <span class="json-key">"fontSize"</span>: [<span class="json-num">28</span>], <span class="json-key">"bold"</span>: [<span class="json-bool">false</span>],
+          <span class="json-key">"color"</span>: { <span class="json-key">"solid"</span>: { <span class="json-key">"color"</span>: <span class="json-str">"#FFFFFF"</span> }}}],
+      <span class="json-key">"categoryLabel"</span>: [{ <span class="json-key">"fontSize"</span>: [<span class="json-num">10</span>],
+          <span class="json-key">"color"</span>: { <span class="json-key">"solid"</span>: { <span class="json-key">"color"</span>: <span class="json-str">"#A8BDD0"</span> }}}]
+    }},
+    <span class="json-key">"lineChart"</span>: { <span class="json-key">"*"</span>: {
+      <span class="json-key">"gridlines"</span>: [{ <span class="json-key">"color"</span>: { <span class="json-key">"solid"</span>: { <span class="json-key">"color"</span>: <span class="json-str">"#1A3055"</span> }}}],
+      <span class="json-key">"strokeWidth"</span>: [<span class="json-num">2</span>]
+    }},
+    <span class="json-key">"slicer"</span>: { <span class="json-key">"*"</span>: {
+      <span class="json-key">"background"</span>: [{ <span class="json-key">"color"</span>: { <span class="json-key">"solid"</span>: { <span class="json-key">"color"</span>: <span class="json-str">"#122849"</span> }}}],
+      <span class="json-key">"fontColor"</span>: [{ <span class="json-key">"solid"</span>: { <span class="json-key">"color"</span>: <span class="json-str">"#E8F0FE"</span> }}]
+    }},
+    <span class="json-key">"button"</span>: { <span class="json-key">"*"</span>: {
+      <span class="json-key">"background"</span>: [{ <span class="json-key">"color"</span>: { <span class="json-key">"solid"</span>: { <span class="json-key">"color"</span>: <span class="json-str">"#1E6FD9"</span> }}}],
+      <span class="json-key">"fontColor"</span>: [{ <span class="json-key">"solid"</span>: { <span class="json-key">"color"</span>: <span class="json-str">"#FFFFFF"</span> }}],
+      <span class="json-key">"border"</span>: [{ <span class="json-key">"radius"</span>: [<span class="json-num">6</span>] }]
+    }}
+  },
+  <span class="json-key">"textClasses"</span>: {
+    <span class="json-key">"label"</span>:   { <span class="json-key">"color"</span>: <span class="json-str">"#A8BDD0"</span>, <span class="json-key">"fontSize"</span>: <span class="json-num">10</span> },
+    <span class="json-key">"callout"</span>: { <span class="json-key">"color"</span>: <span class="json-str">"#FFFFFF"</span>, <span class="json-key">"fontSize"</span>: <span class="json-num">28</span>, <span class="json-key">"fontFace"</span>: <span class="json-str">"Segoe UI"</span> },
+    <span class="json-key">"title"</span>:   { <span class="json-key">"color"</span>: <span class="json-str">"#E8F0FE"</span>, <span class="json-key">"fontSize"</span>: <span class="json-num">12</span>, <span class="json-key">"bold"</span>: <span class="json-bool">false</span> },
+    <span class="json-key">"header"</span>:  { <span class="json-key">"color"</span>: <span class="json-str">"#FFFFFF"</span>, <span class="json-key">"fontSize"</span>: <span class="json-num">14</span> }
+  }
+}
+        </div>
+      </div>
+
+      <!-- PAGE: IMPLEMENTATION -->
+      <div class="page" id="page-impl">
+        <div class="section-title"><i class="ti ti-list-check" aria-hidden="true" style="font-size:11px"></i>Implementation roadmap</div>
+
+        <div class="impl-step">
+          <div class="impl-step-title">Phase 1 — Data Infrastructure (Weeks 1–2)</div>
+          <div class="impl-step-desc">Provision Azure Synapse Analytics or SQL Server data warehouse. Create all 5 Fact and 5 Dimension tables per the star schema. Set up incremental refresh policies on FactSales, FactFinance, FactCustomer (daily). Configure row-level security (RLS) groups: C-Level, Regional VP, Department Head.</div>
+        </div>
+        <div class="impl-step">
+          <div class="impl-step-title">Phase 2 — Power Query & Data Model (Weeks 3–4)</div>
+          <div class="impl-step-desc">Deploy all M code transforms in Power BI Desktop. Build DimDate using the provided M script. Create all relationships: Fact → Dim on surrogate keys (1:*). Validate cardinality. Disable auto date/time. Set storage mode to Import for Dims, DirectQuery for large Facts if > 50M rows.</div>
+        </div>
+        <div class="impl-step">
+          <div class="impl-step-title">Phase 3 — DAX Measures (Weeks 5–6)</div>
+          <div class="impl-step-desc">Create a dedicated _Measures table (hidden). Implement all DAX measures in order of dependency: base aggregations first, then ratios, then composite indices. Use VAR/RETURN pattern throughout. Test each measure with field evaluation in a matrix visual before promoting to dashboard cards.</div>
+        </div>
+        <div class="impl-step">
+          <div class="impl-step-title">Phase 4 — Dashboard Build (Weeks 7–9)</div>
+          <div class="impl-step-desc">Apply JSON theme file via View → Themes → Browse. Build all 6 pages per wireframe. Configure cross-filter interactions. Add Drill-Through pages for Customer Detail, Product Detail, Region Detail. Set up Bookmarks for saved filter states. Build navigation buttons using blank button + Bookmark action. Add dynamic titles using SELECTEDVALUE() in DAX.</div>
+        </div>
+        <div class="impl-step">
+          <div class="impl-step-title">Phase 5 — Performance Optimization</div>
+          <div class="impl-step-desc">Run Performance Analyzer — target all visuals under 3s. Avoid CALCULATE inside iterators. Use SUMMARIZECOLUMNS over ADDCOLUMNS+SUMMARIZE. Enable query folding in Power Query. Partition large fact tables by year. Use aggregations on FactSales for high-cardinality columns. Remove unused columns from the model — every column costs memory.</div>
+        </div>
+        <div class="impl-step">
+          <div class="impl-step-title">Phase 6 — Governance & Security</div>
+          <div class="impl-step-desc">Publish to Power BI Premium workspace. Configure RLS roles in Power BI Service. Enable sensitivity labels (Confidential — Executive Only) via Microsoft Purview. Set up workspace certification. Schedule dataset refresh via gateway (on-prem) or dataflow. Enable usage metrics dashboard for adoption tracking. Set up alerts on KPI cards for threshold breaches (e.g., churn > 8%). Document all measures in a Data Dictionary table within the .pbix.</div>
+        </div>
+        <div class="impl-step">
+          <div class="impl-step-title">Phase 7 — Deployment & Enablement</div>
+          <div class="impl-step-desc">Use deployment pipelines (Dev → Test → Production). Configure scheduled refresh: FactSales hourly, FactFinance daily, FactCustomer daily. Embed in Teams or SharePoint for exec access. Create mobile layout for each page using Mobile Layout view. Conduct executive walkthrough and handover session. Set up a quarterly review cadence for KPI definition updates.</div>
+        </div>
+
+        <div class="section-title" style="margin-top:14px"><i class="ti ti-shield-lock" aria-hidden="true" style="font-size:11px"></i>Security & governance checklist</div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Control</th><th>Approach</th><th>Priority</th></tr></thead>
+            <tbody>
+              <tr><td>Row-Level Security</td><td>DAX filter on DimRegion[Territory] per role</td><td class="up">Critical</td></tr>
+              <tr><td>Object-Level Security</td><td>Hide salary/finance columns from non-Finance roles</td><td class="up">Critical</td></tr>
+              <tr><td>Workspace Permissions</td><td>Admin → BI team only; Viewer → exec group</td><td class="up">Critical</td></tr>
+              <tr><td>Sensitivity Labels</td><td>Purview: Confidential on all financial datasets</td><td class="neutral">High</td></tr>
+              <tr><td>Endorsement</td><td>Certified badge on production datasets</td><td class="neutral">High</td></tr>
+              <tr><td>Refresh Monitoring</td><td>Alerts on refresh failures via Power Automate</td><td class="neutral">High</td></tr>
+              <tr><td>Audit Logging</td><td>Power BI Activity Log → Log Analytics → Sentinel</td><td class="neutral">Medium</td></tr>
+              <tr><td>Data Lineage</td><td>Microsoft Purview Data Catalog integration</td><td class="neutral">Medium</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+function showPage(id, el) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  el.classList.add('active');
+}
+
+const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const commonOpts = {
+  responsive: true, maintainAspectRatio: false,
+  plugins: { legend: { display: false } },
+  scales: {
+    x: { ticks: { color: '#6B7A8D', font: { size: 9 } }, grid: { color: 'rgba(30,111,217,0.08)' } },
+    y: { ticks: { color: '#6B7A8D', font: { size: 9 } }, grid: { color: 'rgba(30,111,217,0.08)' } }
+  }
+};
+
+new Chart(document.getElementById('revProfChart'), {
+  type: 'line',
+  data: {
+    labels: months,
+    datasets: [
+      { label: 'Revenue', data: [18,20,22,21,23,24,22,25,24,26,28,27], borderColor: '#2E8BF7', borderWidth: 2, tension: 0.4, fill: false, pointRadius: 2 },
+      { label: 'Profit',  data: [3.5,4,4.8,4.2,5,5.4,4.9,5.6,5.3,5.8,6.2,5.9], borderColor: '#6EE89A', borderWidth: 2, borderDash: [4,2], tension: 0.4, fill: false, pointRadius: 2 }
+    ]
+  },
+  options: { ...commonOpts, scales: { x: commonOpts.scales.x, y: { ...commonOpts.scales.y, ticks: { ...commonOpts.scales.y.ticks, callback: v => '$' + v + 'M' } } } }
+});
+
+new Chart(document.getElementById('regionChart'), {
+  type: 'doughnut',
+  data: {
+    labels: ['North America','EMEA','APAC','LATAM'],
+    datasets: [{ data: [41,31,18,10], backgroundColor: ['#2E8BF7','#00B4B4','#F5A623','#C792EA'], borderWidth: 0, hoverOffset: 4 }]
+  },
+  options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, cutout: '65%' }
+});
+
+new Chart(document.getElementById('budgetChart'), {
+  type: 'bar',
+  data: {
+    labels: ['Q1','Q2','Q3','Q4'],
+    datasets: [
+      { label: 'Actual', data: [62,68,74,81], backgroundColor: '#2E8BF7', borderRadius: 3 },
+      { label: 'Budget', data: [64,66,72,78], backgroundColor: 'rgba(46,139,247,0.25)', borderRadius: 3, borderWidth: 1, borderColor: '#2E8BF7', borderDash: [4,2] }
+    ]
+  },
+  options: { ...commonOpts, plugins: { legend: { display: false } }, scales: { x: commonOpts.scales.x, y: { ...commonOpts.scales.y, ticks: { callback: v => '$' + v + 'M' } } } }
+});
+
+new Chart(document.getElementById('forecastChart'), {
+  type: 'line',
+  data: {
+    labels: months,
+    datasets: [
+      { label: 'Actual',   data: [18,20,22,21,23,24,22,25,24,26,28,27], borderColor: '#2E8BF7', borderWidth: 2, tension: 0.4, pointRadius: 2 },
+      { label: 'Forecast', data: [19,21,21,22,22,23,23,24,25,25,27,28], borderColor: '#F5A623', borderWidth: 1.5, borderDash: [5,3], tension: 0.4, pointRadius: 0 }
+    ]
+  },
+  options: { ...commonOpts, scales: { x: commonOpts.scales.x, y: { ...commonOpts.scales.y, ticks: { callback: v => '$' + v + 'M' } } } }
+});
+
+new Chart(document.getElementById('salesRegionChart'), {
+  type: 'bar',
+  data: {
+    labels: ['North America','EMEA','APAC','LATAM'],
+    datasets: [{ data: [116.7,88.3,51.2,28.5], backgroundColor: ['#2E8BF7','#00B4B4','#F5A623','#C792EA'], borderRadius: 3 }]
+  },
+  options: { ...commonOpts, indexAxis: 'y', scales: { x: { ...commonOpts.scales.x, ticks: { callback: v => '$' + v + 'M' } }, y: commonOpts.scales.y } }
+});
+
+new Chart(document.getElementById('productChart'), {
+  type: 'doughnut',
+  data: {
+    labels: ['Platform Pro','Analytics Suite','Data Cloud','Services'],
+    datasets: [{ data: [42,28,20,10], backgroundColor: ['#2E8BF7','#00B4B4','#F5A623','#C792EA'], borderWidth: 0 }]
+  },
+  options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, cutout: '60%' }
+});
+
+const sfMonths = ['Jul\'23','Aug','Sep','Oct','Nov','Dec','Jan\'24','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+new Chart(document.getElementById('salesForecastChart'), {
+  type: 'line',
+  data: {
+    labels: sfMonths,
+    datasets: [
+      { label: 'Actual',   data: [18,19,20,22,24,25,21,22,23,24,25,27,null,null,null,null,null,null], borderColor: '#2E8BF7', backgroundColor: 'rgba(46,139,247,0.08)', fill: true, tension: 0.4, borderWidth: 2, pointRadius: 2 },
+      { label: 'Forecast', data: [null,null,null,null,null,null,null,null,null,null,null,27,29,31,32,34,35,37], borderColor: '#F5A623', borderDash: [5,3], tension: 0.4, borderWidth: 2, pointRadius: 2 }
+    ]
+  },
+  options: { ...commonOpts, scales: { x: { ...commonOpts.scales.x, ticks: { ...commonOpts.scales.x.ticks, maxRotation: 45 } }, y: { ...commonOpts.scales.y, ticks: { callback: v => '$' + v + 'M' } } } }
+});
+
+new Chart(document.getElementById('churnChart'), {
+  type: 'line',
+  data: {
+    labels: months,
+    datasets: [{ data: [7.1,6.9,6.8,6.7,6.6,6.5,6.4,6.3,6.2,6.1,5.9,5.8], borderColor: '#FF7B7B', borderWidth: 2, tension: 0.4, pointRadius: 2, fill: false }]
+  },
+  options: { ...commonOpts, scales: { x: commonOpts.scales.x, y: { ...commonOpts.scales.y, ticks: { callback: v => v + '%' } } } }
+});
+
+new Chart(document.getElementById('funnelChart'), {
+  type: 'bar',
+  data: {
+    labels: ['Leads 100K','Trials 28K','Converted 12.4K','Retained 10.8K','Expanded 3.2K'],
+    datasets: [{ data: [100,28,12.4,10.8,3.2], backgroundColor: ['#2E8BF7','#00B4B4','#6EE89A','#F5A623','#C792EA'], borderRadius: 4 }]
+  },
+  options: { ...commonOpts, indexAxis: 'y', plugins: { legend: { display: false } }, scales: { x: { ...commonOpts.scales.x, ticks: { callback: v => v + 'K' } }, y: commonOpts.scales.y } }
+});
+
+new Chart(document.getElementById('utilChart'), {
+  type: 'bar',
+  data: {
+    labels: ['Engineering','Sales','Product','Operations','Finance','CS'],
+    datasets: [{ data: [88,82,80,76,74,68], backgroundColor: ['#2E8BF7','#2E8BF7','#F5A623','#F5A623','#00B4B4','#6EE89A'], borderRadius: 3 }]
+  },
+  options: { ...commonOpts, indexAxis: 'y', scales: { x: { ...commonOpts.scales.x, max: 100, ticks: { callback: v => v + '%' } }, y: commonOpts.scales.y } }
+});
+
+const depts = ['Engineering','Sales','Product','Ops','Finance','CS'];
+const qData = [
+  [82,88,91,94],[76,82,88,96],[79,84,82,87],[70,74,77,80],[72,75,78,74],[66,71,75,88]
+];
+const heatEl = document.getElementById('heatmap-rows');
+if (heatEl) {
+  depts.forEach((d, i) => {
+    const row = document.createElement('div');
+    row.style.cssText = 'display:flex;gap:3px;margin-bottom:3px;align-items:center';
+    const lbl = document.createElement('div');
+    lbl.style.cssText = 'width:60px;font-size:9px;color:#A8BDD0;text-align:right;padding-right:4px';
+    lbl.textContent = d;
+    row.appendChild(lbl);
+    const cells = document.createElement('div');
+    cells.style.cssText = 'flex:1;display:grid;grid-template-columns:repeat(4,1fr);gap:3px';
+    qData[i].forEach(v => {
+      const c = document.createElement('div');
+      const intensity = (v - 60) / 40;
+      const r = Math.round(46 + intensity * 64);
+      const g = Math.round(139 + intensity * 100);
+      const b = Math.round(247 - intensity * 130);
+      c.style.cssText = `height:18px;border-radius:2px;background:rgba(${r},${g},${b},0.6);display:flex;align-items:center;justify-content:center;font-size:8px;color:#fff`;
+      c.textContent = v;
+      cells.appendChild(c);
+    });
+    row.appendChild(cells);
+    heatEl.appendChild(row);
+  });
+}
+</script>
